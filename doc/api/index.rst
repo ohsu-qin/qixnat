@@ -8,6 +8,13 @@ API Documentation
 helpers
 =======
 
+:mod:`command`
+-----------------
+
+.. automodule:: qixnat.command
+    :members:
+    :show-inheritance:
+
 :mod:`configuration`
 -----------------
 
