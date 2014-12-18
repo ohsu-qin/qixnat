@@ -5,7 +5,7 @@ from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Resources)
 from qiutil.logging import logger
 from qiutil.collections import is_nonstring_iterable
-from .config import configuration_file
+from .configuration import configuration_file
 from .helpers import hierarchical_label
 
 
@@ -35,28 +35,30 @@ class XNAT(object):
     out the parent label. The name parameters are used to build the
     XNAT label, as shown in the following example:
 
-    +----------------+-------------+---------------------------------+
-    | Class          | Name        | Label                           |
-    +================+=============+=================================+
-    | Project        | QIN         | QIN                             |
-    +----------------+-------------+---------------------------------+
-    | Subject        | Breast003   | Breast003                       |
-    +----------------+-------------+---------------------------------+
-    | Experiment     | Session01   | Breast003_Session01             |
-    +----------------+-------------+---------------------------------+
-    | Scan           | 1           | 1                               |
-    +----------------+-------------+---------------------------------+
-    | Reconstruction | reco_fTkr4Y | Breast003_Session01_reco_fTkr4Y |
-    +----------------+-------------+---------------------------------+
-    | Assessor       | pk_4kbEv3r  | Breast003_Session01_pk_4kbEv3r  |
-    +----------------+-------------+---------------------------------+
-    | Resource       | reg_zaK1Bd  | reg_zaK1Bd                      |
-    +----------------+-------------+---------------------------------+
-    | File           |series37.nii | series37.nii                    |
-    +----------------+-------------+---------------------------------+
+        +----------------+-------------+---------------------------------+
+        | Class          | Name        | Label                           |
+        +================+=============+=================================+
+        | Project        | QIN         | QIN                             |
+        +----------------+-------------+---------------------------------+
+        | Subject        | Breast003   | Breast003                       |
+        +----------------+-------------+---------------------------------+
+        | Experiment     | Session01   | Breast003_Session01             |
+        +----------------+-------------+---------------------------------+
+        | Scan           | 1           | 1                               |
+        +----------------+-------------+---------------------------------+
+        | Reconstruction | reco_fTkr4Y | Breast003_Session01_reco_fTkr4Y |
+        +----------------+-------------+---------------------------------+
+        | Assessor       | pk_4kbEv3r  | Breast003_Session01_pk_4kbEv3r  |
+        +----------------+-------------+---------------------------------+
+        | Resource       | reg_zaK1Bd  | reg_zaK1Bd                      |
+        +----------------+-------------+---------------------------------+
+        | File           |series37.nii | series37.nii                    |
+        +----------------+-------------+---------------------------------+
+        
+        Table 1. Example XNAT label generation.
 
     :Note: The XNAT Reconstruction data type is deprecated. An experiment
-      Resource should be used instead.
+        Resource should be used instead.
 
     The XNAT label is set by the user and conforms to the following
     uniqueness constraints:
@@ -127,27 +129,29 @@ class XNAT(object):
 
     Each opaque XNAT-generated identifier is unique within the database.
 
-    The following table shows example XNAT ids and labels.
+    The following table shows example XNAT ids and labels:
 
-    +----------------+------------+-------------------------------------+
-    | Class          | Id         | Label                               |
-    +================+============+=====================================+
-    | Project        | QIN        | QIN                                 |
-    +----------------+------------+-------------------------------------+
-    | Subject        | QIN_S00580 | Breast003                           |
-    +----------------+------------+-------------------------------------+
-    | Experiment     | QIN_E00604 | Breast003_Session01                 |
-    +----------------+------------+-------------------------------------+
-    | Scan           | 1          | 1                                   |
-    +----------------+------------+-------------------------------------+
-    | Reconstruction | --         | Breast003_Session01_reco_fTkr4Y     |
-    +----------------+------------+-------------------------------------+
-    | Assessor       | QIN_E00868 | Breast003_Session01_pk_4kbEv3r      |
-    +----------------+------------+-------------------------------------+
-    | Resource       | 3187       | reg_zaK1Bd                          |
-    +----------------+------------+-------------------------------------+
-    | File           |series37.nii| series37.nii                        |
-    +----------------+------------+-------------------------------------+
+        +----------------+------------+-------------------------------------+
+        | Class          | Id         | Label                               |
+        +================+============+=====================================+
+        | Project        | QIN        | QIN                                 |
+        +----------------+------------+-------------------------------------+
+        | Subject        | QIN_S00580 | Breast003                           |
+        +----------------+------------+-------------------------------------+
+        | Experiment     | QIN_E00604 | Breast003_Session01                 |
+        +----------------+------------+-------------------------------------+
+        | Scan           | 1          | 1                                   |
+        +----------------+------------+-------------------------------------+
+        | Reconstruction | --         | Breast003_Session01_reco_fTkr4Y     |
+        +----------------+------------+-------------------------------------+
+        | Assessor       | QIN_E00868 | Breast003_Session01_pk_4kbEv3r      |
+        +----------------+------------+-------------------------------------+
+        | Resource       | 3187       | reg_zaK1Bd                          |
+        +----------------+------------+-------------------------------------+
+        | File           |series37.nii| series37.nii                        |
+        +----------------+------------+-------------------------------------+
+        
+        Table 2. Example XNAT ids and labels.
 
     In the example above, the XNAT assessor object is obtained as
     follows:
@@ -189,7 +193,6 @@ class XNAT(object):
 
     def __init__(self, config=None):
         """
-
         :param config: the configuration file, or None to connect with
             the :meth:`configuration_file`
         """
@@ -513,7 +516,7 @@ class XNAT(object):
         :param file_obj: the XNAT File object
         :param dest: the target directory
         :param opts: the following option:
-        :option force: overwrite existing file
+        :keyword force: overwrite existing file
         :return: the downloaded file path
         """
         fname = file_obj.label()
