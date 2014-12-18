@@ -35,6 +35,7 @@ setup(
     license = 'MIT',
     keywords = 'Imaging QIN XNAT',
     packages = find_packages(exclude=['test**']),
+    include_package_data = True,
     scripts = glob.glob('bin/*'),
     url = 'https://github.com/ohsu-qin/qixnat',
     description = 'XNAT facade.',
