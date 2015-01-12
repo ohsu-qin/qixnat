@@ -30,8 +30,8 @@ Installation
 install. Furthermore, the `pyxnat installation guide`_ is itself insufficient
 to install pyxnat dependencies consistently in all environments. Consequently,
 ``qixnat`` installation cannot be performed using the customary Python_ pip_
-command ``pip install qixnat`` alone. The following steps are suggested
-instead:
+command ``pip install qixnat`` alone. Anaconda_ is recommended for ensuring
+package and library consistency, according to the following steps:
 
 1. On Linux only, install the ``libxslt`` dev package. For Ubuntu or other
    Debian-based systems, execute::
@@ -49,8 +49,9 @@ instead:
 
        export PATH=$HOME/anaconda/bin:$PATH
 
-4. Make an Anaconda virtual environment which initialized with pip and lxml,
-   e.g.::
+   Add this line to ``$HOME/.bashrc`` or ``$HOME/.bash_profile`` as well.
+
+4. Make an Anaconda virtual environment initialized with pip and lxml, e.g.::
 
        conda create --name qin pip lxml
 
