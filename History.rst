@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+2.1.4 / 2014-01-12
+------------------
+* Suggest Anaconda in the install instructions.
+
 2.1.3 / 2014-12-17
 ------------------
 * Tweak distribution.
