@@ -86,6 +86,10 @@ Run the following command for the utility options::
 
 .. Targets:
 
+.. _Anaconda: http://docs.continuum.io/anaconda/
+
+.. _Anaconda Installation Instructions: http://docs.continuum.io/anaconda/install.html
+
 .. _Knight Cancer Institute: http://www.ohsu.edu/xd/health/services/cancer
 
 .. _license: https://github.com/ohsu-qin/qixnat/blob/master/LICENSE.txt
