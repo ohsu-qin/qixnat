@@ -26,6 +26,13 @@ Feature List
 Installation
 ************
 
+``qixnat`` depends on the pyxnat_ module, which can in turn can be tricky to
+install. Furthermore, the `pyxnat installation guide`_ is itself insufficient
+to install pyxnat dependencies consistently in all environments. Consequently,
+``qixnat`` installation cannot be performed using the customary Python_ pip_
+command ``pip install qixnat`` alone. The following steps are suggested
+instead:
+
 1. On Linux only, install the ``libxslt`` dev package. For Ubuntu or other
    Debian-based systems, execute::
 
@@ -35,12 +42,26 @@ Installation
    
        sudo yum install libxslt-dev
 
-2. On Mac only, install the ``lxml`` Python package with statically bound
-   libraries::
+2. Install Anaconda_ in ``$HOME/anaconda`` on your workstation according to
+   the `Anaconda Installation Instructions`_.
 
-       (STATIC_DEPS=true; pip install lxml)
+3. Add ``$HOME/anaconda/bin`` to your PATH::
 
-3. Install the ``qixnat`` package using the Python_ pip_ command::
+       export PATH=$HOME/anaconda/bin:$PATH
+
+4. Make an Anaconda virtual environment which initialized with pip and lxml,
+   e.g.::
+
+       conda create --name qin pip lxml
+
+5. Install the ``qixnat`` dependencies hosted by Anaconda::
+
+       cat requirements.txt | xargs -n 1 conda install -y
+
+   Ignore ``No packages found`` messages for non-Anaconda packages. These
+   packages will be installed in the next step.
+
+6. Install the ``qixnat`` package::
 
        pip install qixnat
 
@@ -72,6 +93,10 @@ Run the following command for the utility options::
 .. _pip: https://pypi.python.org/pypi/pip
 
 .. _Python: http://www.python.org
+
+.. _pyxnat: https://pythonhosted.org/pyxnat/
+
+.. _pyxnat installation guide: https://pythonhosted.org/pyxnat/installing.html 
 
 .. _XNAT: http://www.xnat.org/
 
