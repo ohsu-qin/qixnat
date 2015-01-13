@@ -49,20 +49,29 @@ package and library consistency, according to the following steps:
 
        export PATH=$HOME/anaconda/bin:$PATH
 
-   Add this line to ``$HOME/.bashrc`` or ``$HOME/.bash_profile`` as well.
-
 4. Make an Anaconda virtual environment initialized with pip and lxml, e.g.::
 
        conda create --name qin pip lxml
 
-5. Install the ``qixnat`` dependencies hosted by Anaconda::
+5. Prepend Anaconda and your virtual environment to ``PATH`` in your shell
+   login script. Open an editor on ``$HOME/.bashrc`` or ``$HOME/.bash_profile``
+   and add the following lines::
 
-       cat requirements.txt | xargs -n 1 conda install -y
+      # Prepend the locally installed applications.
+      export PATH=$ANACONDA_HOME:$PATH
+      # Prepend the qipipe virtual environment.
+      source activate qin  
+
+6. Refresh your environment, e.g. quit your console and reopen a new one.
+
+7. Install the ``qixnat`` dependencies hosted by Anaconda::
+
+       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install -y
 
    Ignore ``No packages found`` messages for non-Anaconda packages. These
    packages will be installed in the next step.
 
-6. Install the ``qixnat`` package::
+8. Install the ``qixnat`` package::
 
        pip install qixnat
 
