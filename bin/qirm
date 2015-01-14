@@ -56,7 +56,7 @@ def _parse_arguments():
     parser = argparse.ArgumentParser()
 
     # The log options.
-    command.add_standard_options(parser)
+    command.add_log_options(parser)
 
     # The input XNAT path.
     parser.add_argument('path', help='the target XNAT object path',

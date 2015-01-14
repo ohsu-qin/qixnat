@@ -99,7 +99,7 @@ def _parse_arguments():
     parser = argparse.ArgumentParser()
 
     # The log options.
-    command.add_standard_options(parser)
+    command.add_log_options(parser)
 
     # The --force and --skip-existing options are exclusive.
     existing_opts = parser.add_mutually_exclusive_group()

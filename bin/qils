@@ -6,7 +6,10 @@ import os
 import sys
 import imp
 import argparse
-from qiutil import command
+from qiutil.command import configure_log
+import qixnat
+from qixnat import command
+from qixnat.helpers import (xnat_name, standardize_experiment_child_hierarchy)
 
 
 class SessionNotFoundError(Exception):
@@ -16,37 +19,30 @@ class SessionNotFoundError(Exception):
 def main(argv=sys.argv):
     # Parse the command line arguments.
     path_str, opts = _parse_arguments()
-
     # The XNAT configuration.
     config = opts.pop('config', None)
-
     # Configure the logger.
-    command.configure_log('qils', opts)
-
-    # Import the pyxnat and qiutil pipeline module after configuring
-    # the logger.
-    from pyxnat.core.resources import Reconstruction
-    import qiutil
-    from qiutil import qixnat
+    configure_log('qils', opts)
 
     # Parse the XNAT hierarchy argument.
     path_items = path_str.split('/')
     if len(path_items) < 2:
         raise ValueError('The search path must include at least two items,'
                          ' e.g. Breast003/Session01')
-    prj = opts.pop('project', qiutil.project())
+    # The XNAT project (default 'QIN').
+    prj = opts.pop('project', qixnat.project())
+    # The subject/session from the command line path argument.
     sbj, sess = path_items[0:2]
-    child_path = qixnat.helpers.standardize_experiment_child_hierarchy(path_items[2:])
+    # The rest of the command line path argument.
+    child_path = standardize_experiment_child_hierarchy(path_items[2:])
+    # Print the XNAT object names specified by the path. 
     with qixnat.connection.connect(config) as xnat:
         sess_obj = xnat.get_session(prj, sbj, sess)
         if not xnat.exists(sess_obj):
             raise SessionNotFoundError("No such XNAT session: %s %s %s" %
                                        (prj, sbj, sess))
         for child in xnat.expand_child_hierarchy(sess_obj, child_path):
-            if isinstance(child, Reconstruction):
-                print child.id()
-            else:
-                print child.label()
+            print xnat_name(child)
 
     return 0
 
@@ -56,7 +52,7 @@ def _parse_arguments():
     parser = argparse.ArgumentParser()
 
     # The log options.
-    command.add_standard_options(parser)
+    qixnat.command.add_options(parser)
 
     # The input XNAT hierarchy path.
     parser.add_argument('path', help='the target XNAT object path')
