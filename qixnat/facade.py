@@ -6,6 +6,7 @@ from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
 from qiutil.logging import logger
 from qiutil.collections import is_nonstring_iterable
 from .configuration import configuration_file
+from .constants import (CONTAINER_TYPES, ASSESSOR_SYNONYMS, INOUT_CONTAINER_TYPES)
 from .helpers import hierarchical_label
 
 
@@ -175,21 +176,6 @@ class XNAT(object):
 
     SUBJECT_QUERY_FMT = "/project/%s/subject/%s"
     """The subject query template."""
-
-    CONTAINER_TYPES = ['scan', 'reconstruction', 'assessor']
-    """The XNAT resource container types."""
-
-    XNAT_RESOURCE_TYPES = ['resource', 'in_resource', 'out_resource']
-    """The XNAT resource types."""
-    
-    XNAT_CHILD_TYPES = set(CONTAINER_TYPES + XNAT_RESOURCE_TYPES + ['file'])
-    """The XNAT experiment or resource container child types."""
-
-    ASSESSOR_SYNONYMS = ['analysis', 'assessment']
-    """Alternative designations for the XNAT ``assessor`` container type."""
-
-    INOUT_CONTAINER_TYPES = [
-        Reconstruction, Reconstructions, Assessor, Assessors]
 
     def __init__(self, config=None):
         """
@@ -856,10 +842,12 @@ class XNAT(object):
         child_spec = hierarchy[0]
         logger(__name__).debug("Expanding the %s XNAT child hierarchy %s..." %
                                (parent, hierarchy))
-        children = _xnat_children(parent, child_spec)
+        children = self._xnat_children(parent, child_spec)
+        # Recurse.
         closures = [self.expand_child_hierarchy(child, hierarchy[1:])
                     for child in children]
 
+        # Concatenate the closures.
         return reduce(lambda x, y: x + y, closures, [])
 
     HIERARCHICAL_LABEL_TYPES = ['experiment', 'assessor', 'reconstruction']
@@ -890,7 +878,7 @@ class XNAT(object):
             # A wild card label => search on the children.
             if '*' in child_label:
                 label_pat = re.escape(child_label).replace('\*', '.*') + '$'
-                children = _xnat_children(xnat_obj, child_type + 's')
+                children = self._xnat_children(xnat_obj, child_type + 's')
                 return [child for child in children
                         if re.match(label_pat, child.label())]
 
@@ -904,12 +892,12 @@ class XNAT(object):
                             child = assr
             elif isinstance(xnat_obj, Assessor) and child_type == 'resource':
                 try:
-                    return _xnat_children(
+                    return self._xnat_children(
                     xnat_obj, ('in_resource', child_label))
                 except ChildNotFoundError:
-                    return _xnat_children(xnat_obj, ('out_resource', child_label))
+                    return self._xnat_children(xnat_obj, ('out_resource', child_label))
             else:
-                child = getattr(xnat_obj, child_type)(child_label)
+                child = self._xnat_child(xnat_obj, child_spec, child_label)
             if not xnat.exists(child):
                 raise ChildNotFoundError("No such XNAT %s %s child: %s" %
                                          (xnat_obj, child_type, child_label))
@@ -917,12 +905,24 @@ class XNAT(object):
         elif isinstance(xnat_obj, Assessor) and child_spec == 'resources':
             # Work around a pyxnat bug that fetches abstract resource objects
             # rather than the concrete objects.
-            in_rscs = _xnat_children(xnat_obj, 'in_resources')
-            out_rscs = _xnat_children(xnat_obj, 'out_resources')
+            in_rscs = self._xnat_children(xnat_obj, 'in_resources')
+            out_rscs = self._xnat_children(xnat_obj, 'out_resources')
             return [r for r in in_rscs] + [r for r in out_rscs]
         else:
-            return getattr(xnat_obj, child_spec)
+            # The child_spec is a pluralized accessor, e.g. 'resources'.
+            # Call the accessor.
+            return getattr(xnat_obj, child_spec)()
 
+    def _xnat_child(parent, accessor, label):
+        """
+        Curries the given label into the parent accessor partial function.
+        
+        :param parent: the parent XNAT object
+        :param accessor: the accessor property, e.g. ``resource``
+        :param label: the child XNAT label
+        """
+        return getattr(parent, accessor)(label)
+        
     def _standardize_modality(self, modality):
         """
         Examples:
@@ -977,11 +977,11 @@ class XNAT(object):
           without a value.
 
         - Otherwise, if the options include a container type in
-          :data:`qixnat.facade.XNAT.CONTAINER_TYPES`,
+          :data:`qixnat.constants.CONTAINER_TYPES`,
           then the option type and value are returned.
 
         - Otherwise, if the options include a container type in
-          :data:`qixnat.facade.XNAT.ASSESSOR_SYNONYMS`,
+          :data:`qixnat.constants.ASSESSOR_SYNONYMS`,
           then the `assessor` container type and the option value are
           returned.
 
@@ -993,24 +993,24 @@ class XNAT(object):
         """
         if 'container_type' in opts:
             return (opts['container_type'], None)
-        for t in XNAT.CONTAINER_TYPES:
+        for t in CONTAINER_TYPES:
             if t in opts:
                 return (t, opts[t])
-        for t in XNAT.ASSESSOR_SYNONYMS:
+        for t in ASSESSOR_SYNONYMS:
             if t in opts:
                 return ('assessor', opts[t])
 
     def _container_type(self, name):
         """
-        :param name: the L{XNAT.CONTAINER_TYPES} or
-            L{XNAT.ASSESSOR_SYNONYMS} container designator
-        :return: the standard XNAT designator in L{XNAT.CONTAINER_TYPES}
+        :param name: the L{qixnat.constants.CONTAINER_TYPES} or
+            L{qixnat.constants.ASSESSOR_SYNONYMS} container designator
+        :return: the standard XNAT designator in L{qixnat.constants.CONTAINER_TYPES}
         :raise XNATError: if the name does not designate a valid container
             type
         """
-        if name in XNAT.ASSESSOR_SYNONYMS:
+        if name in ASSESSOR_SYNONYMS:
             return 'assessor'
-        elif name in XNAT.CONTAINER_TYPES:
+        elif name in CONTAINER_TYPES:
             return name
         else:
             raise XNATError("XNAT upload session child container not"
@@ -1028,7 +1028,7 @@ class XNAT(object):
         the experiment XNAT ``Scans`` instance.
 
         :param experiment: the XNAT experiment
-        :param container_type: the container type in L{XNAT.CONTAINER_TYPES}
+        :param container_type: the container type in L{qixnat.constants.CONTAINER_TYPES}
         :param name: the optional container name
         :return: the XNAT resource parent object
         """
@@ -1100,7 +1100,7 @@ class XNAT(object):
         :return: whether the container resources are qualified as input or
             output
         """
-        for ctr_type in XNAT.INOUT_CONTAINER_TYPES:
+        for ctr_type in INOUT_CONTAINER_TYPES:
             if isinstance(container, ctr_type):
                 return True
         return False
