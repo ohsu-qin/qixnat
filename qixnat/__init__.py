@@ -1,7 +1,7 @@
 from .project import project
 from .connection import connect
 
-__version__ = '2.1.5'
+__version__ = '2.1.6'
 """
 The one-based major.minor.patch version.
 The version numbering scheme loosely follows http://semver.org/.
