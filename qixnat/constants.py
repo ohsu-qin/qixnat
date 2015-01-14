@@ -17,3 +17,6 @@ ASSESSOR_SYNONYMS = ['analysis', 'assessment']
 
 INOUT_CONTAINER_TYPES = [Reconstruction, Reconstructions,
                          Assessor, Assessors]
+
+HIERARCHICAL_LABEL_TYPES = ['experiment', 'assessor', 'reconstruction']
+"""The XNAT types whose label is prefixed by the parent label."""

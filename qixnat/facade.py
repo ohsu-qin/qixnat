@@ -6,7 +6,8 @@ from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
 from qiutil.logging import logger
 from qiutil.collections import is_nonstring_iterable
 from .configuration import configuration_file
-from .constants import (CONTAINER_TYPES, ASSESSOR_SYNONYMS, INOUT_CONTAINER_TYPES)
+from .constants import (CONTAINER_TYPES, ASSESSOR_SYNONYMS,
+                        INOUT_CONTAINER_TYPES, HIERARCHICAL_LABEL_TYPES)
 from .helpers import hierarchical_label
 
 
@@ -850,15 +851,13 @@ class XNAT(object):
         # Concatenate the closures.
         return reduce(lambda x, y: x + y, closures, [])
 
-    HIERARCHICAL_LABEL_TYPES = ['experiment', 'assessor', 'reconstruction']
-    """The XNAT types whose label is prefixed by the parent label."""
-
     def _xnat_children(self, xnat_obj, child_spec):
         """
         Returns the XNAT object children for the given child specification.
         The specification is either a pluralized XNAT child type, e.g.
         ``scans``, or a (type, value) pair, e.g. ``('scan', '1')``. If the
-        value includes a wildcard, e.g. ``('resource', 'reg_*')``, then
+        value includes a wildcard,
+         e.g. ``('resource', 'reg_*')``, then
         all matching XNAT objects are returned. Otherwise, the value is
         a label or id search target.
 
@@ -897,8 +896,8 @@ class XNAT(object):
                 except ChildNotFoundError:
                     return self._xnat_children(xnat_obj, ('out_resource', child_label))
             else:
-                child = self._xnat_child(xnat_obj, child_spec, child_label)
-            if not xnat.exists(child):
+                child = self._xnat_child(xnat_obj, child_type, child_label)
+            if not self.exists(child):
                 raise ChildNotFoundError("No such XNAT %s %s child: %s" %
                                          (xnat_obj, child_type, child_label))
             return [child]
@@ -913,15 +912,15 @@ class XNAT(object):
             # Call the accessor.
             return getattr(xnat_obj, child_spec)()
 
-    def _xnat_child(parent, accessor, label):
+    def _xnat_child(self, parent, attribute, label):
         """
         Curries the given label into the parent accessor partial function.
         
         :param parent: the parent XNAT object
-        :param accessor: the accessor property, e.g. ``resource``
+        :param attribute: the accessor attribute, e.g. ``resource``
         :param label: the child XNAT label
         """
-        return getattr(parent, accessor)(label)
+        return getattr(parent, attribute)(label)
         
     def _standardize_modality(self, modality):
         """
@@ -1145,9 +1144,13 @@ class XNAT(object):
         :param resource: the existing XNAT resource object that will contain
           the file
         :param in_file: the input file path
-        :param opts: the XNAT file options
+        :param opts: the XNAT file options, as well as the following upload
+          options:
+        :keyword skip_existing: ignore if the file already exists
+        :keyword force: replace an existing file
         :return: the XNAT file name
-        :raise XNATError: if the XNAT file already exists
+        :raise XNATError: if the XNAT file already exists and neither the
+          *skip_existing* nor the *force* option is set
         """
         # The XNAT file name.
         _, fname = os.path.split(in_file)
@@ -1165,7 +1168,14 @@ class XNAT(object):
                     raise XNATError('The XNAT upload option --skip_existing is'
                                     ' incompatible with the --force option')
                 return fname
-            elif not opts.get('force'):
+            elif opts.get('force'):
+                # Delete the existing file before upload.
+                file_obj.delete()
+                # XNAT 1.6 pyxnat ignores file delete.
+                if file_obj.exists():
+                    raise XNATError("XNAT upload force option is not supported,"
+                                    " since XNAT ignores file delete.")
+            else:
                 raise XNATError("The XNAT file object %s already exists in the"
                                 " %s resource" % (fname, resource.label()))
 

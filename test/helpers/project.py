@@ -1,5 +1,5 @@
 """
-This module resets the :meth:qiutil.project` from ``QIN`` to ``QIN_Test``.
+This module resets the :meth:qixnat.project` from ``QIN`` to ``QIN_Test``.
 """
 
 from qixnat import project
