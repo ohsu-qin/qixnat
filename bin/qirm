@@ -6,7 +6,10 @@ import os
 import sys
 import imp
 import argparse
-from qiutil import command
+from qiutil.command import configure_log
+import qixnat
+from qixnat import command
+from qixnat.helpers import standardize_experiment_child_hierarchy
 
 
 class SessionNotFoundError(Exception):
@@ -16,18 +19,10 @@ class SessionNotFoundError(Exception):
 def main(argv=sys.argv):
     # Parse the command line arguments.
     path_str, opts = _parse_arguments()
-    
     # The XNAT configuration.
     config = opts.pop('config', None)
-
     # Configure the logger.
-    command.configure_log('qirm', opts)
-
-    # Import the pyxnat and qiutil pipeline module after configuring
-    # the logger.
-    from pyxnat.core.resources import Reconstruction
-    import qiutil
-    from qiutil import qixnat
+    configure_log('qirm', opts)
 
     # Parse the XNAT hierarchy argument.
     path_items = path_str.split('/')
@@ -35,11 +30,11 @@ def main(argv=sys.argv):
         raise ValueError("The search path must include at least three items,"
                          " e.g. Breast003/Session01")
     sbj, sess = path_items[0:2]
-    child_path = qixnat.helpers.standardize_experiment_child_hierarchy(path_items[2:])
+    child_path = standardize_experiment_child_hierarchy(path_items[2:])
     
     # Delete each specified XNAT object.
-    prj = opts.pop('project', qiutil.project())
-    with qixnat.connection.connect(config) as xnat:
+    prj = opts.pop('project', qixnat.project())
+    with qixnat.connect(config) as xnat:
         sess_obj = xnat.get_session(prj, sbj, sess)
         if not xnat.exists(sess_obj):
             raise SessionNotFoundError("No such XNAT session: %s %s %s" %
@@ -54,17 +49,17 @@ def main(argv=sys.argv):
 def _parse_arguments():
     """Parses the command line arguments."""
     parser = argparse.ArgumentParser()
-
-    # The log options.
-    command.add_log_options(parser)
-
+    # The common XNAT options.
+    command.add_options(parser)
     # The input XNAT path.
     parser.add_argument('path', help='the target XNAT object path',
                         metavar='PATH')
-
+    # Parse all arguments.
     args = vars(parser.parse_args())
+    # Filter out the empty arguments.
     nonempty_args = dict((k, v) for k, v in args.iteritems() if v != None)
 
+    # Return the path argument and the options.
     return nonempty_args.pop('path'), nonempty_args
 
 

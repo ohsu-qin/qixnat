@@ -36,7 +36,7 @@ def main(argv=sys.argv):
     # The rest of the command line path argument.
     child_path = standardize_experiment_child_hierarchy(path_items[2:])
     # Print the XNAT object names specified by the path. 
-    with qixnat.connection.connect(config) as xnat:
+    with qixnat.connect(config) as xnat:
         sess_obj = xnat.get_session(prj, sbj, sess)
         if not xnat.exists(sess_obj):
             raise SessionNotFoundError("No such XNAT session: %s %s %s" %

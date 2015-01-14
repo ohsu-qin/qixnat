@@ -8,7 +8,10 @@ import re
 import imp
 import argparse
 from collections import defaultdict
-from qiutil import command
+from qiutil.command import configure_log
+import qixnat
+from qixnat import command
+from qixnat.helpers import standardize_experiment_child_hierarchy
 
 
 class ArgumentError(Exception):
@@ -22,18 +25,12 @@ class SessionNotFoundError(Exception):
 def main(argv=sys.argv):
     # Parse the command line arguments.
     sources, dest, opts = _parse_arguments()
-
     # The XNAT configuration.
     config = opts.pop('config', None)
-
+    # Extract the log options.
     # Configure the logger.
-    command.configure_log('qicp', opts)
-
-    # Import the pyxnat and qiutil pipeline module after configuring
-    # the logger.
-    from pyxnat.core.resources import Reconstruction
-    import qiutil
-    from qiutil import qixnat
+    log_opts = {k: opts.pop(k) for k in opts.keys() if k.startswith('log')}
+    configure_log('qicp', log_opts)
 
     # Determine whether the copy is an upload or download.
     xnat_prefix = 'xnat:'
@@ -64,24 +61,31 @@ def main(argv=sys.argv):
         raise ValueError("The search path must include at least two items,"
                          " e.g. Breast003/Session01")
     # The project is an option.
-    prj = opts.pop('project', qiutil.project())
+    prj = opts.pop('project', qixnat.project())
     # Subject and session are the first items in the XNAT path.
     sbj, sess = path_items[0:2]
     # Parse the remaining XNAT path items into (type, name) tuples followed by
     # 'files', e.g. [('scan', '40'), ('resource', 'DICOM'), 'files']
-    child_path = qixnat.helpers.standardize_experiment_child_hierarchy(path_items[2:])
+    child_path = standardize_experiment_child_hierarchy(path_items[2:])
     
     # Copy the files.
-    with qixnat.connection.connect(config) as xnat:
+    with qixnat.connect(config) as xnat:
         sess_obj = xnat.get_session(prj, sbj, sess)
         if not xnat.exists(sess_obj):
             raise SessionNotFoundError("No such XNAT session: %s %s %s" %
                                        (prj, sbj, sess))
         if direction is 'up':
-            # Make the upload options from the path, e.g. scan: '40', resource: 'DICOM'.
-            # Omit the last child element element, which is 'files'.
-            opts = dict(child_path[:-1])
-            xnat.upload(prj, sbj, sess, *sources, **opts)
+            # Make the upload options from the path, e.g.
+            # {'scan': '40', 'resource': 'DICOM'}.
+            # If the last child element is 'files', then don't include it
+            # in the upload options.
+            if child_path[-1] == 'files':
+                upload_path = child_path[:-1]
+            else:
+                upload_path = child_path
+            upload_opts = dict(upload_path)
+            upload_opts.update(opts)
+            xnat.upload(prj, sbj, sess, *sources, **upload_opts)
         else:
             xnat_objs = xnat.expand_child_hierarchy(sess_obj, child_path)
             if not xnat_objs:
@@ -95,11 +99,14 @@ def main(argv=sys.argv):
 
 
 def _parse_arguments():
-    """Parses the command line arguments."""
+    """
+    Parses the command line arguments.
+    
+    :return the (source, destination, options) tuple
+    """
     parser = argparse.ArgumentParser()
-
-    # The log options.
-    command.add_log_options(parser)
+    # The common XNAT options.
+    command.add_options(parser)
 
     # The --force and --skip-existing options are exclusive.
     existing_opts = parser.add_mutually_exclusive_group()
@@ -121,6 +128,7 @@ def _parse_arguments():
     sources = nonempty_args.pop('sources')
     dest = nonempty_args.pop('dest')
 
+    # Return the source, destination and options.
     return sources, dest, nonempty_args
 
 
