@@ -1,11 +1,24 @@
-import os
-import re
-from qiutil.logging import logger
-
 """
 .. module:: helpers
     :synopsis: XNAT utility functions.
 """
+
+import os
+import re
+from pyxnat.core.resources import Reconstruction
+from qiutil.logging import logger
+from .constants import (CHILD_TYPES, ASSESSOR_SYNONYMS)
+
+def xnat_name(obj):
+    """
+    Returns the XNAT object name as follows:
+    * If the object is a Reconstruction, then the XNAT id
+    * Otherwise, the XNAT label
+    
+    :param obj: the XNAT object
+    :return: the XNAT label or id
+    """
+    return obj.id() if isinstance(obj, Reconstruction) else obj.label()
 
 
 def hierarchical_label(*names):
@@ -93,11 +106,11 @@ def standardize_child_attribute(name):
     """
     if name == 'analyses':
         return 'assessors'
-    elif name in XNAT.ASSESSOR_SYNONYMS:
+    elif name in ASSESSOR_SYNONYMS:
         return 'assessor'
     elif name.endswith('s'):
         return standardize_child_attribute(name[:-1]) + 's'
-    elif name in XNAT.XNAT_CHILD_TYPES:
+    elif name in CHILD_TYPES:
         return name
     else:
         raise ValueError("The XNAT path item %s is not recognized as an"
