@@ -20,7 +20,6 @@ class ChildNotFoundError(Exception):
 
 
 class XNAT(object):
-
     """
     XNAT is a pyxnat facade convenience class. An XNAT instance is
     created in a :meth:`connection`
@@ -121,10 +120,10 @@ class XNAT(object):
     * A Reconstruction does not have an XNAT id
 
     * The Subject id is an opaque XNAT-generated value starting with
-      *project*\ ``_S_``.
+      *project*\ _S.
 
     * The Experiment and Assessor id is an opaque XNAT-generated value
-      starting with *project*\ ``_E_``.
+      starting with *project*\ _E.
 
     * The Resource is an opaque XNAT-generated string value consisting
       of digits.
