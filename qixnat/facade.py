@@ -1,4 +1,5 @@
 import os
+import re
 import pyxnat
 from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Reconstructions, Assessor, Assessors,
