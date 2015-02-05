@@ -6,4 +6,4 @@ qixnat provides a XNAT facade and helper functions. See the
 
 .. Targets:
 
-.. _documentation: http://qixnat.readthedocs.org/en/latest/
+.. _documentation: https://github.com/ohsu-qin/qixnat/blob/master/doc/index.rst
