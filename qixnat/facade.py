@@ -56,7 +56,7 @@ class XNAT(object):
         +----------------+-------------+---------------------------------+
         | File           |series37.nii | series37.nii                    |
         +----------------+-------------+---------------------------------+
-        
+
         Table 1. Example XNAT label generation.
 
     :Note: The XNAT Reconstruction data type is deprecated. An experiment
@@ -152,7 +152,7 @@ class XNAT(object):
         +----------------+------------+-------------------------------------+
         | File           |series37.nii| series37.nii                        |
         +----------------+------------+-------------------------------------+
-        
+
         Table 2. Example XNAT ids and labels.
 
     In the example above, the XNAT assessor object is obtained as
@@ -307,7 +307,7 @@ class XNAT(object):
         :return: the corresponding XNAT scan object (which may not exist)
         """
         exp = self.get_experiment(project, subject, experiment)
-        
+
         return exp.scan(str(scan))
 
     def get_reconstruction(self, project, subject, experiment, recon):
@@ -346,7 +346,7 @@ class XNAT(object):
             (which may not exist)
         """
         exp = self.get_experiment(project, subject, experiment)
-        
+
         return exp.resource(resource)
 
     def get_assessor(self, project, subject, experiment, assessor):
@@ -370,7 +370,7 @@ class XNAT(object):
         """
         label = hierarchical_label(subject, experiment, assessor)
         exp = self.get_experiment(project, subject, experiment)
-        
+
         return exp.assessor(label)
 
     # Define the get_assessor function aliases.
@@ -397,20 +397,20 @@ class XNAT(object):
 
         downloads the NiFTI files for the XNAT experiment with label
         ``Breast001_Session03`` and resource label ``reg_jA4K``.
-        
+
         The files are downloaded to the following directory:
-        
+
             <dest>/<project>/<subject>/<series>/<container_type>/<container>
-        
+
         where:
-        
+
         * <dest> is the destination directory (given by the *dest*
           argument or the cwd)
         * <project> is the XNAT project
         * <subject> is the relative XNAT subject label, e.g. ``Breast001``
         * <experiment> is the relative XNAT experiment label, e.g. ``Session03``
         * <container_type> is the XNAT container type, e.g. ``assessor``
-        * <container> is the relative XNAT container label, e.g. ``pk_A4r3aw`` 
+        * <container> is the relative XNAT container label, e.g. ``pk_A4r3aw``
 
         :param project: the XNAT project id
         :param subject: the XNAT subject label
@@ -642,7 +642,7 @@ class XNAT(object):
         A capitalized modality value is a synonym for the XNAT experiment
         data type, e.g. ``MR`` is a synonym for ``xnat:mrSessionData``.
         The default modality is ``MR``.
-        
+
         The *scan* option value can be a number or a {attribute: value}
         dictionary. If the *scan* option value is a number, then the scan
         with that number is searched. Otherwise, if the *scan* option is
@@ -780,7 +780,7 @@ class XNAT(object):
                         self._logger.debug("Setting the XNAT %s %s %s %s %s "
                                            " attributes %s..." %
                                            (project, subject, experiment, ctr_type,
-                                            ctr_id, 
+                                            ctr_id,
                                             ctr_opts))
                         ctr.attrs.mset(ctr_opts)
                     self._logger.debug("Created the XNAT %s %s %s %s %s object"
@@ -873,9 +873,9 @@ class XNAT(object):
         children = reduce(lambda x, y: x + y, closures, [])
         if not children:
             raise ChildNotFoundError("%s: No such XNAT object" % path)
-        
+
         return children
-            
+
 
     def _expand_child_hierarchy(self, parent, hierarchy):
         """
@@ -935,7 +935,7 @@ class XNAT(object):
                 children = self._xnat_children(xnat_obj, attribute)
                 # Simple asterisk => all children match.
                 if value == '*':
-                    return children 
+                    return children
                 # Convert a glob wild card (*) to an re match (.*).
                 label_pat = re.escape(value).replace('\*', '.*') + '$'
                 return [child for child in children
@@ -968,13 +968,13 @@ class XNAT(object):
     def _xnat_child(self, parent, attribute, label):
         """
         Curries the given label into the parent accessor partial function.
-        
+
         :param parent: the parent XNAT object
         :param attribute: the accessor attribute, e.g. ``resource``
         :param label: the child XNAT label
         """
         return getattr(parent, attribute)(label)
-        
+
     def _standardize_modality(self, modality):
         """
         Examples:
