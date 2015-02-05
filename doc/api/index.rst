@@ -22,6 +22,12 @@ API Documentation
     :members:
     :show-inheritance:
 
+:mod:`constants`
+-----------------
+.. automodule:: qixnat.constants
+    :members:
+    :show-inheritance:
+
 :mod:`facade`
 -------------
 .. automodule:: qixnat.facade
@@ -31,11 +37,5 @@ API Documentation
 :mod:`helpers`
 --------------
 .. automodule:: qixnat.helpers
-    :members:
-    :show-inheritance:
-
-:mod:`project`
---------------
-.. automodule:: qixnat.project
     :members:
     :show-inheritance:
