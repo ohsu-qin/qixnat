@@ -75,3 +75,9 @@ class TestHelpers(object):
         actual = path_hierarchy(path)
         assert_equal(actual, expected, "The path hierarchy for path %s is"
                                        " incorrect: %s" % (path, actual))
+
+
+if __name__ == "__main__":
+    import nose
+
+    nose.main(defaultTest=__name__)
