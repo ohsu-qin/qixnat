@@ -1,7 +1,10 @@
 """XNAT object model constants."""
 
-from pyxnat.core.resources import (Reconstruction, Reconstructions,
+from pyxnat.core.resources import (Project, Projects,
+                                   Reconstruction, Reconstructions,
                                    Assessor, Assessors)
+
+EXPERIMENT_PATH_TYPES = ['project', 'subject', 'experiment']
 
 CONTAINER_TYPES = ['scan', 'reconstruction', 'assessor']
 """The XNAT resource container types."""
@@ -9,8 +12,12 @@ CONTAINER_TYPES = ['scan', 'reconstruction', 'assessor']
 RESOURCE_TYPES = ['resource', 'in_resource', 'out_resource']
 """The XNAT resource types."""
 
-CHILD_TYPES = set(CONTAINER_TYPES + RESOURCE_TYPES + ['file'])
-"""The XNAT experiment or resource container child types."""
+XNAT_TYPES = set(EXPERIMENT_PATH_TYPES + CONTAINER_TYPES + RESOURCE_TYPES +
+                 ['file'])
+"""The standardized XNAT object types."""
+
+UNLABELED_XNAT_TYPES = [Reconstruction]
+"""The XNAT object types which do not have a label attribute."""
 
 ASSESSOR_SYNONYMS = ['analysis', 'assessment']
 """Alternative designations for the XNAT ``assessor`` container type."""

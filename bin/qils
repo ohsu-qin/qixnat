@@ -2,47 +2,31 @@
 """
 Lists XNAT objects.
 """
-import os
 import sys
-import imp
+import os
 import argparse
 from qiutil.command import configure_log
 import qixnat
 from qixnat import command
-from qixnat.helpers import (xnat_name, standardize_experiment_child_hierarchy)
-
-
-class SessionNotFoundError(Exception):
-    pass
-
+from qixnat.helpers import xnat_path
+from qixnat.facade import ChildNotFoundError
 
 def main(argv=sys.argv):
     # Parse the command line arguments.
-    path_str, opts = _parse_arguments()
+    path, opts = _parse_arguments()
     # The XNAT configuration.
     config = opts.pop('config', None)
     # Configure the logger.
     configure_log('qils', opts)
 
-    # Parse the XNAT hierarchy argument.
-    path_items = path_str.split('/')
-    if len(path_items) < 2:
-        raise ValueError('The search path must include at least two items,'
-                         ' e.g. Breast003/Session01')
-    # The XNAT project (default 'QIN').
-    prj = opts.pop('project', qixnat.project())
-    # The subject/session from the command line path argument.
-    sbj, sess = path_items[0:2]
-    # The rest of the command line path argument.
-    child_path = standardize_experiment_child_hierarchy(path_items[2:])
     # Print the XNAT object names specified by the path. 
     with qixnat.connect(config) as xnat:
-        sess_obj = xnat.get_session(prj, sbj, sess)
-        if not xnat.exists(sess_obj):
-            raise SessionNotFoundError("No such XNAT session: %s %s %s" %
-                                       (prj, sbj, sess))
-        for child in xnat.expand_child_hierarchy(sess_obj, child_path):
-            print xnat_name(child)
+        try:
+            for child in xnat.expand_path(path):
+                print xnat_path(child)
+        except ChildNotFoundError:
+            print ("No such XNAT object: %s" % path)
+            return 1
 
     return 0
 

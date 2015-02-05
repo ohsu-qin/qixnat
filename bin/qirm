@@ -2,46 +2,39 @@
 """
 Deletes an OHSU QIN XNAT object.
 """
-import os
 import sys
-import imp
+import os
+import re
 import argparse
 from qiutil.command import configure_log
 import qixnat
 from qixnat import command
-from qixnat.helpers import standardize_experiment_child_hierarchy
 
-
-class SessionNotFoundError(Exception):
+class UnsupportedError(Exception):
     pass
 
 
 def main(argv=sys.argv):
     # Parse the command line arguments.
-    path_str, opts = _parse_arguments()
+    paths, opts = _parse_arguments()
     # The XNAT configuration.
     config = opts.pop('config', None)
     # Configure the logger.
     configure_log('qirm', opts)
-
-    # Parse the XNAT hierarchy argument.
-    path_items = path_str.split('/')
-    if len(path_items) < 2:
-        raise ValueError("The search path must include at least three items,"
-                         " e.g. Breast003/Session01")
-    sbj, sess = path_items[0:2]
-    child_path = standardize_experiment_child_hierarchy(path_items[2:])
+    
+    # Validate that file objects are not specified, since
+    # pyxnat file object delete is a no-op.
+    for path in paths:
+        if re.search('/files?(/\w+)?$', path):
+            raise UnsupportedError("XNAT does not support file object"
+                                   " deletion: %s" % path)
     
     # Delete each specified XNAT object.
-    prj = opts.pop('project', qixnat.project())
     with qixnat.connect(config) as xnat:
-        sess_obj = xnat.get_session(prj, sbj, sess)
-        if not xnat.exists(sess_obj):
-            raise SessionNotFoundError("No such XNAT session: %s %s %s" %
-                                       (prj, sbj, sess))
-        for child in xnat.expand_child_hierarchy(sess_obj, child_path):
-            if child.exists():
-                child.delete()
+        obj_lists = [xnat.expand_path(path) for path in paths]
+        objs = reduce(lambda x,y: x + y, obj_lists)
+        for obj in objs:
+            obj.delete()    
     
     return 0
 
@@ -52,15 +45,15 @@ def _parse_arguments():
     # The common XNAT options.
     command.add_options(parser)
     # The input XNAT path.
-    parser.add_argument('path', help='the target XNAT object path',
-                        metavar='PATH')
+    parser.add_argument('paths', nargs='+', metavar='PATH',
+                        help="the XNAT object path(s) to delete")
     # Parse all arguments.
     args = vars(parser.parse_args())
     # Filter out the empty arguments.
     nonempty_args = dict((k, v) for k, v in args.iteritems() if v != None)
 
     # Return the path argument and the options.
-    return nonempty_args.pop('path'), nonempty_args
+    return nonempty_args.pop('paths'), nonempty_args
 
 
 if __name__ == '__main__':

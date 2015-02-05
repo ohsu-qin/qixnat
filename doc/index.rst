@@ -1,7 +1,7 @@
 .. _index:
 
 =========================================
-qixnat - Quantitative Imaging XNAT helper
+qixnat - XNAT facade
 =========================================
 
 ********

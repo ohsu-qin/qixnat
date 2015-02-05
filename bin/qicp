@@ -5,14 +5,12 @@ Downloads or uploads XNAT files.
 import sys
 import os
 import re
-import imp
 import argparse
 from collections import defaultdict
 from qiutil.command import configure_log
 import qixnat
 from qixnat import command
-from qixnat.helpers import standardize_experiment_child_hierarchy
-
+from qixnat.helpers import path_hierarchy
 
 class ArgumentError(Exception):
     pass
@@ -24,7 +22,7 @@ class SessionNotFoundError(Exception):
 
 def main(argv=sys.argv):
     # Parse the command line arguments.
-    sources, dest, opts = _parse_arguments()
+    paths, opts = _parse_arguments()
     # The XNAT configuration.
     config = opts.pop('config', None)
     # Extract the log options.
@@ -34,66 +32,75 @@ def main(argv=sys.argv):
 
     # Determine whether the copy is an upload or download.
     xnat_prefix = 'xnat:'
-    download_suffix_pat = '/file(s|/[.\w]+)$'
-    if dest.startswith(xnat_prefix):
-        xnat_path = dest[len(xnat_prefix):]
-        direction = 'up'
-    elif not sources:
-        raise ArgumentError("There must be at least one source and exactly"
-                            " one destination argument")
-    else:
-        src = sources[0]
-        if not src.startswith(xnat_prefix):
-            raise ArgumentError("Neither the source nor the destination"
-                                " begin with 'xnat:'")
-        xnat_path = src[len(xnat_prefix):]
-        if not re.search(download_suffix_pat, xnat_path):
-            raise ArgumentError("The xnat source argument must end in 'files'"
-                                " or a 'file/<name>' specification: %s" % src)
-        if len(sources) > 1:
-            raise ArgumentError("Download arguments must include exactly"
-                                " one source and one destination argument")
+    prefixed = [path.startswith(xnat_prefix) for path in paths]
+    if all(prefixed) or not prefixed[-1]:
         direction = 'down'
-
-    # Parse the XNAT hierarchy argument.
-    path_items = xnat_path.split('/')
-    if len(path_items) < 2:
-        raise ValueError("The search path must include at least two items,"
-                         " e.g. Breast003/Session01")
-    # The project is an option.
-    prj = opts.pop('project', qixnat.project())
-    # Subject and session are the first items in the XNAT path.
-    sbj, sess = path_items[0:2]
-    # Parse the remaining XNAT path items into (type, name) tuples followed by
-    # 'files', e.g. [('scan', '40'), ('resource', 'DICOM'), 'files']
-    child_path = standardize_experiment_child_hierarchy(path_items[2:])
+    else:
+        # There must be a source.
+        if len(paths) == 1:
+            raise ArgumentError("There must be at least one XNAT download"
+                                " source.")
+        direction = 'up'
+    
+    # Determine the sources and destination.
+    if direction == 'up':
+        # Upload.
+        if any(prefixed[:-1]):
+            raise ArgumentError("Upload sources cannot have a xnat: prefix")
+        # The last path argument is the XNAT destination.
+        # The remaining path arguments are the file sources. 
+        sources = paths[:-1]
+        dest = paths[-1][len(xnat_prefix):].rstrip('/')
+        # Remove the '/files' destination suffix, if necessary.
+        if dest.endswith('/files'):
+            dest = dest[:-len('/files')]
+    else:
+        # Download.
+        if not all(prefixed[:-1]):
+            raise ArgumentError("Download sources must have a xnat: prefix")
+        prefixed_paths = paths if prefixed[-1] else paths[:-1]
+        # Remove each source leading prefix and trailing slash.
+        sources = [path[len(xnat_prefix):].rstrip('/')
+                   for path in prefixed_paths]
+        # Append a files suffix to the XNAT sources, if necessary.
+        for source in sources:
+            for source in sources:
+                if not re.search(r"/files?(/\w+)$", source):
+                    source += '/files'
+        # If the last path argument is an XNAT directory, then
+        # the destination is the current directory, otherwise
+        # the destination is the last path argument.
+        dest = '.' if prefixed[-1] else paths[-1]
     
     # Copy the files.
     with qixnat.connect(config) as xnat:
-        sess_obj = xnat.get_session(prj, sbj, sess)
-        if not xnat.exists(sess_obj):
-            raise SessionNotFoundError("No such XNAT session: %s %s %s" %
-                                       (prj, sbj, sess))
         if direction is 'up':
-            # Make the upload options from the path, e.g.
-            # {'scan': '40', 'resource': 'DICOM'}.
-            # If the last child element is 'files', then don't include it
-            # in the upload options.
-            if child_path[-1] == 'files':
-                upload_path = child_path[:-1]
-            else:
-                upload_path = child_path
-            upload_opts = dict(upload_path)
+            # The path starts with /project/subject/experiment.
+            prefix_types = ['project', 'subject', 'experiment']
+            hierarchy = path_hierarchy(dest)
+            prefix = hierarchy[:3]
+            if [pair[0] for pair in prefix] != prefix_types:
+                raise ArgumentError("Upload XNAT target must start with a"
+                                    " /project/subject/session: %s" % dest)
+            # Get the session.
+            prj, sbj, sess = ((pair[1] for pair in prefix))
+            sess_obj = xnat.get_session(prj, sbj, sess)
+            if not xnat.exists(sess_obj):
+                raise SessionNotFoundError("No such XNAT session: %s %s %s" %
+                                           (prj, sbj, sess))
+            # The remaining (type, value) pairs.
+            upload_opts = dict(hierarchy[3:])
+            # Add in the general command options, e.g. force.
             upload_opts.update(opts)
+            # Upload the files.
             xnat.upload(prj, sbj, sess, *sources, **upload_opts)
         else:
-            xnat_objs = xnat.expand_child_hierarchy(sess_obj, child_path)
-            if not xnat_objs:
-                raise ArgumentError("Download source XNAT object not found")
-            if not os.path.exists(dest):
-                os.makedirs(dest)
-            for file_obj in xnat_objs:
-                xnat.download_file(file_obj, dest, **opts)
+            # The download source XNAT file objects.
+            src_obj_lists = [xnat.expand_path(src) for src in sources]
+            src_objs = reduce(lambda x,y: x + y, src_obj_lists)
+            # Download the files.
+            for src_obj in src_objs:
+                xnat.download_file(src_obj, dest, **opts)
 
     return 0
 
@@ -110,26 +117,24 @@ def _parse_arguments():
 
     # The --force and --skip-existing options are exclusive.
     existing_opts = parser.add_mutually_exclusive_group()
-    existing_opts.add_argument('-f', '--force', action='store_true', help="overwrite existing target file")
-    existing_opts.add_argument('-s', '--skip-existing', action='store_true', help="don't copy if the target file exists")
+    existing_opts.add_argument('-f', '--force', action='store_true',
+                               help="overwrite existing target file")
+    existing_opts.add_argument('-s', '--skip-existing', action='store_true',
+                               help="don't copy if the target file exists")
 
     # The source file(s) or XNAT hierarchy path.
-    parser.add_argument('sources', nargs='+', metavar='SOURCE',
-                        help="the source file(s) or XNAT object path")
-    parser.add_argument('dest', metavar='DEST',
-                        help="the destination directory or XNAT object"
-                             " path")
+    parser.add_argument('paths', nargs='+', metavar='[xnat:]PATH',
+                        help="the file or XNAT object path(s)")
 
     # Parse all arguments.
     args = vars(parser.parse_args())
     # Filter out the empty arguments.
     nonempty_args = dict((k, v) for k, v in args.iteritems() if v != None)
     # The source(s) and destination.
-    sources = nonempty_args.pop('sources')
-    dest = nonempty_args.pop('dest')
+    paths = nonempty_args.pop('paths')
 
-    # Return the source, destination and options.
-    return sources, dest, nonempty_args
+    # Return the paths and options.
+    return paths, nonempty_args
 
 
 if __name__ == '__main__':

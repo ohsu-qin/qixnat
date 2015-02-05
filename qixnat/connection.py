@@ -4,10 +4,6 @@ from contextlib import contextmanager
 from .facade import XNAT
 from qiutil.logging import logger
 
-"""
-This xnat connection module includes XNAT utility functions.
-"""
-
 @contextmanager
 def connect(config=None):
     """
@@ -21,8 +17,7 @@ def connect(config=None):
     >>> with qixnat.connect() as xnat:
     ...    sbj = xnat.get_subject('QIN', 'Breast003')
 
-    :return: the XNAT instance
-    :rtype: :class:`XNAT`
+    :yield: the XNAT instance
     """
     if not hasattr(connect, 'connect_cnt'):
         connect.connect_cnt = 0
