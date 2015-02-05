@@ -1,0 +1,1181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API Documentation &mdash; qixnat v2.2.1</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="qixnat v2.2.1" href="../index.html" />
+    <link rel="prev" title="qixnat - XNAT facade" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="qixnat - XNAT facade"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">qixnat v2.2.1</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-documentation">
+<span id="api-index"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-qixnat.command">
+<span id="command"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">command</span></tt><a class="headerlink" href="#module-qixnat.command" title="Permalink to this headline">¶</a></h2>
+<p>Command XNAT options.</p>
+<dl class="function">
+<dt id="qixnat.command.add_options">
+<tt class="descclassname">qixnat.command.</tt><tt class="descname">add_options</tt><big>(</big><em>parser</em><big>)</big><a class="headerlink" href="#qixnat.command.add_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the logging, project and config options to the given command
+line arugment parser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parser</strong> &#8211; the Python <tt class="docutils literal"><span class="pre">argparse</span></tt> parser</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qixnat.configuration">
+<span id="configuration"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">configuration</span></tt><a class="headerlink" href="#module-qixnat.configuration" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="qixnat.configuration.configuration_file">
+<tt class="descclassname">qixnat.configuration.</tt><tt class="descname">configuration_file</tt><big>(</big><big>)</big><a class="headerlink" href="#qixnat.configuration.configuration_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT configuration file location determined as the first file
+found in the following precedence order:</p>
+<ol class="arabic simple">
+<li>The <tt class="docutils literal"><span class="pre">XNAT_CFG</span></tt> environment variable, if it is set.</li>
+<li><tt class="docutils literal"><span class="pre">xnat.cfg</span></tt> in the current working directory</li>
+<li><tt class="docutils literal"><span class="pre">xnat.cfg</span></tt> in the home <tt class="docutils literal"><span class="pre">.xnat</span></tt> subdirectory</li>
+<li><tt class="docutils literal"><span class="pre">xnat.cfg</span></tt> in the home directory</li>
+<li><tt class="docutils literal"><span class="pre">xnat.cfg</span></tt> in the <tt class="docutils literal"><span class="pre">/etc</span></tt> directory</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the configuration location, if any</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qixnat.connection">
+<span id="connection"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">connection</span></tt><a class="headerlink" href="#module-qixnat.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="qixnat.connection.connect">
+<tt class="descclassname">qixnat.connection.</tt><tt class="descname">connect</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#qixnat.connection.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yields a <a class="reference internal" href="#qixnat.facade.XNAT" title="qixnat.facade.XNAT"><tt class="xref py py-class docutils literal"><span class="pre">qixnat.facade.XNAT</span></tt></a> instance.
+The XNAT connection is closed when the outermost connection
+block finishes.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qiutil</span> <span class="kn">import</span> <span class="n">qixnat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">qixnat</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">xnat</span><span class="p">:</span>
+<span class="gp">... </span>   <span class="n">sbj</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">get_subject</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yield:</th><td class="field-body">the XNAT instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qixnat.constants">
+<span id="constants"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">constants</span></tt><a class="headerlink" href="#module-qixnat.constants" title="Permalink to this headline">¶</a></h2>
+<p>XNAT object model constants.</p>
+<dl class="data">
+<dt id="qixnat.constants.ASSESSOR_SYNONYMS">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">ASSESSOR_SYNONYMS</tt><em class="property"> = ['analysis', 'assessment']</em><a class="headerlink" href="#qixnat.constants.ASSESSOR_SYNONYMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative designations for the XNAT <tt class="docutils literal"><span class="pre">assessor</span></tt> container type.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="qixnat.constants.CONTAINER_TYPES">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">CONTAINER_TYPES</tt><em class="property"> = ['scan', 'reconstruction', 'assessor']</em><a class="headerlink" href="#qixnat.constants.CONTAINER_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The XNAT resource container types.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="qixnat.constants.HIERARCHICAL_LABEL_TYPES">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">HIERARCHICAL_LABEL_TYPES</tt><em class="property"> = ['experiment', 'assessor', 'reconstruction']</em><a class="headerlink" href="#qixnat.constants.HIERARCHICAL_LABEL_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The XNAT types whose label is prefixed by the parent label.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="qixnat.constants.RESOURCE_TYPES">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">RESOURCE_TYPES</tt><em class="property"> = ['resource', 'in_resource', 'out_resource']</em><a class="headerlink" href="#qixnat.constants.RESOURCE_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The XNAT resource types.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="qixnat.constants.UNLABELED_XNAT_TYPES">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">UNLABELED_XNAT_TYPES</tt><em class="property"> = [&lt;class 'pyxnat.core.resources.Reconstruction'&gt;]</em><a class="headerlink" href="#qixnat.constants.UNLABELED_XNAT_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The XNAT object types which do not have a label attribute.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="qixnat.constants.XNAT_TYPES">
+<tt class="descclassname">qixnat.constants.</tt><tt class="descname">XNAT_TYPES</tt><em class="property"> = set(['resource', 'file', 'scan', 'in_resource', 'project', 'experiment', 'reconstruction', 'out_resource', 'assessor', 'subject'])</em><a class="headerlink" href="#qixnat.constants.XNAT_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The standardized XNAT object types.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-qixnat.facade">
+<span id="facade"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">facade</span></tt><a class="headerlink" href="#module-qixnat.facade" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qixnat.facade.XNAT">
+<em class="property">class </em><tt class="descclassname">qixnat.facade.</tt><tt class="descname">XNAT</tt><big>(</big><em>config=None</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>XNAT is a pyxnat facade convenience class. An XNAT instance is
+created in a <tt class="xref py py-meth docutils literal"><span class="pre">connection()</span></tt>
+context, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qiutil</span> <span class="kn">import</span> <span class="n">qixnat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">qixnat</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">xnat</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">sbj</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">get_subject</span><span class="p">(</span><span class="s">&#39;QIN_Test&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This XNAT wrapper class implements methods to access XNAT objects in
+a hierarchical name space using a labeling convention. The access
+method parameters are XNAT hierarchy object name values. Here, the
+<em>name</em> refers to the ending portion of the XNAT label that strips
+out the parent label. The name parameters are used to build the
+XNAT label, as shown in the following example:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="21%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class</th>
+<th class="head">Name</th>
+<th class="head">Label</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Project</td>
+<td>QIN</td>
+<td>QIN</td>
+</tr>
+<tr class="row-odd"><td>Subject</td>
+<td>Breast003</td>
+<td>Breast003</td>
+</tr>
+<tr class="row-even"><td>Experiment</td>
+<td>Session01</td>
+<td>Breast003_Session01</td>
+</tr>
+<tr class="row-odd"><td>Scan</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>Reconstruction</td>
+<td>reco_fTkr4Y</td>
+<td>Breast003_Session01_reco_fTkr4Y</td>
+</tr>
+<tr class="row-odd"><td>Assessor</td>
+<td>pk_4kbEv3r</td>
+<td>Breast003_Session01_pk_4kbEv3r</td>
+</tr>
+<tr class="row-even"><td>Resource</td>
+<td>reg_zaK1Bd</td>
+<td>reg_zaK1Bd</td>
+</tr>
+<tr class="row-odd"><td>File</td>
+<td>series37.nii</td>
+<td>series37.nii</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1. Example XNAT label generation.</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">The XNAT Reconstruction data type is deprecated. An experiment
+Resource should be used instead.</td>
+</tr>
+</tbody>
+</table>
+<p>The XNAT label is set by the user and conforms to the following
+uniqueness constraints:</p>
+<ul class="simple">
+<li>the Project label is unique within the database.</li>
+<li>the Subject, Experiment, Assessor and Reconstruction label is unique
+within the Project.</li>
+<li>the Scan label is unique within the scope of the Experiment.</li>
+<li>the Resource label is unique within the scope of its parent container.</li>
+<li>the File label is unique within the scope of its parent Resource.</li>
+</ul>
+<p>A constraint violation results in a <tt class="docutils literal"><span class="pre">DatabaseError</span></tt> with REST
+HTTP status 409 or 500, with the following exception:</p>
+<ul>
+<li><p class="first">If a <em>subject1</em> Experiment is created with the same label as a
+<em>subject2</em> Experiment in the same Project, then the <em>subject1</em>
+Experiment is moved to <em>subject2</em>, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qixnat.facade</span> <span class="kn">import</span> <span class="n">XNAT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xnat</span> <span class="o">=</span> <span class="n">XNAT</span><span class="p">()</span><span class="o">.</span><span class="n">interface</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbj1</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&#39;/project/QIN_Test/subject/Breast003&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span> <span class="o">=</span> <span class="n">sbj1</span><span class="o">.</span><span class="n">experiment</span><span class="p">(</span><span class="s">&#39;Session01&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbj2</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&#39;/project/QIN_Test/subject/Breast004&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp2</span> <span class="o">=</span> <span class="n">sbj2</span><span class="o">.</span><span class="n">experiment</span><span class="p">(</span><span class="s">&#39;Session01&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>The pyxnat access methods specify an <em>id</em> parameter, but in fact either
+the id or label can be used for the <em>id</em> parameter, consistent with the
+XNAT REST interface, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qixnat.facade</span> <span class="kn">import</span> <span class="n">XNAT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xnat</span> <span class="o">=</span> <span class="n">XNAT</span><span class="p">()</span><span class="o">.</span><span class="n">interface</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sbj1</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&#39;/project/QIN_Test/subject/Breast003&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span> <span class="o">=</span> <span class="n">sbj1</span><span class="o">.</span><span class="n">experiment</span><span class="p">(</span><span class="s">&#39;Breast003_Session01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">exp1</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">exp1</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="o">==</span> <span class="bp">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">label</span><span class="p">()</span> <span class="o">==</span> <span class="bp">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="o">==</span> <span class="bp">None</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">label</span><span class="p">()</span>
+<span class="go">&#39;Breast003_Session01&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp2</span> <span class="o">=</span> <span class="n">sbj1</span><span class="o">.</span><span class="n">experiment</span><span class="p">(</span><span class="n">exp1</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span><span class="o">.</span><span class="n">label</span><span class="p">()</span> <span class="o">==</span> <span class="n">exp2</span><span class="o">.</span><span class="n">label</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>XNAT generates the id as follows:</p>
+<ul class="simple">
+<li>The Project, Scan and File id and label are identical</li>
+<li>A Reconstruction does not have an XNAT id</li>
+<li>The Subject id is an opaque XNAT-generated value starting with
+<em>project</em>_S.</li>
+<li>The Experiment and Assessor id is an opaque XNAT-generated value
+starting with <em>project</em>_E.</li>
+<li>The Resource is an opaque XNAT-generated string value consisting
+of digits.</li>
+</ul>
+<p>Each opaque XNAT-generated identifier is unique within the database.</p>
+<p>The following table shows example XNAT ids and labels:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="18%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class</th>
+<th class="head">Id</th>
+<th class="head">Label</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Project</td>
+<td>QIN</td>
+<td>QIN</td>
+</tr>
+<tr class="row-odd"><td>Subject</td>
+<td>QIN_S00580</td>
+<td>Breast003</td>
+</tr>
+<tr class="row-even"><td>Experiment</td>
+<td>QIN_E00604</td>
+<td>Breast003_Session01</td>
+</tr>
+<tr class="row-odd"><td>Scan</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td>Reconstruction</td>
+<td>&#8211;</td>
+<td>Breast003_Session01_reco_fTkr4Y</td>
+</tr>
+<tr class="row-odd"><td>Assessor</td>
+<td>QIN_E00868</td>
+<td>Breast003_Session01_pk_4kbEv3r</td>
+</tr>
+<tr class="row-even"><td>Resource</td>
+<td>3187</td>
+<td>reg_zaK1Bd</td>
+</tr>
+<tr class="row-odd"><td>File</td>
+<td>series37.nii</td>
+<td>series37.nii</td>
+</tr>
+</tbody>
+</table>
+<p>Table 2. Example XNAT ids and labels.</p>
+</div></blockquote>
+<p>In the example above, the XNAT assessor object is obtained as
+follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qiutil</span> <span class="kn">import</span> <span class="n">qixnat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">qixnat</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">xnat</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">recon</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">get_assessor</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="s">&#39;pk_4kbEv3r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A scan NiFTI file <tt class="docutils literal"><span class="pre">series1.nii.gz</span></tt> is uploaded using the following
+code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">xnat</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;series1.nii.gz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The NIFTI file is placed in the default scan resource <tt class="docutils literal"><span class="pre">NIFTI</span></tt>. DICOM scan
+upload requires the <em>resource</em> option, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">xnat</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="n">DICOM</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">dicom_files</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> &#8211; the configuration file, or None to connect with</td>
+</tr>
+</tbody>
+</table>
+<p>the <tt class="xref py py-meth docutils literal"><span class="pre">configuration_file()</span></tt></p>
+<dl class="attribute">
+<dt id="qixnat.facade.XNAT.SUBJECT_QUERY_FMT">
+<tt class="descname">SUBJECT_QUERY_FMT</tt><em class="property"> = '/project/%s/subject/%s'</em><a class="headerlink" href="#qixnat.facade.XNAT.SUBJECT_QUERY_FMT" title="Permalink to this definition">¶</a></dt>
+<dd><p>The subject query template.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.children_methods">
+<tt class="descname">children_methods</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.children_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT children accessor methods for the given XNAT object.</p>
+<p>This method works around the following pyxnat/XNAT bugs:</p>
+<ul>
+<li><p class="first">The pyxnat 0.9.1 Assessor resources accessor method raises the
+following exception:</p>
+<div class="highlight-python"><div class="highlight"><pre>KeyError: &#39;xnat_abstractresource_id&#39;
+</pre></div>
+</div>
+<p>The work-around is to ignore the Assessor resources method.</p>
+</li>
+<li><p class="first">The pyxnat 0.9.1 children method sometimes incorrectly returns
+an empty list. This bug occurs when iterating over experiment
+children. For example, the first reconstruction returns:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;in_resources&#39;</span><span class="p">,</span> <span class="s">&#39;out_resources&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>but the remaining reconstructions return an empty list. This occurs
+in the qiutil <tt class="docutils literal"><span class="pre">qils</span></tt> script <em>_collect_resources</em> method, but does
+not occur in ipython.</p>
+<p>The work-around is to replace the pyxnat empty list by the
+children accessor methods defined for Scan and Reconstruction.</p>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops the XNAT connection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.delete_subjects">
+<tt class="descname">delete_subjects</tt><big>(</big><em>project</em>, <em>*subjects</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.delete_subjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the given XNAT subjects, if they exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><p class="first">this function is intended primarily for testing purposes.
+Use with care.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subjects</strong> &#8211; the XNAT subject names</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.download">
+<tt class="descname">download</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>**opts</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads the files for the specified XNAT experiment.</p>
+<p>The keyword arguments include the resource name and the experiment
+child container. The experiment child container option can be set to
+a specific resource container, e.g. <tt class="docutils literal"><span class="pre">scan=1</span></tt>, as described in
+<a class="reference internal" href="#qixnat.facade.XNAT.upload" title="qixnat.facade.XNAT.upload"><tt class="xref py py-meth docutils literal"><span class="pre">upload()</span></tt></a>
+or all resources of a given container type. In the latter case,
+the <em>container_type</em> parameter is set. The permissible container
+types are described in <a class="reference internal" href="#qixnat.facade.XNAT.upload" title="qixnat.facade.XNAT.upload"><tt class="xref py py-meth docutils literal"><span class="pre">upload()</span></tt></a>.</p>
+<p>The experiment value is qualified by the subject, if necessary.
+An analysis option value is qualified by the experiment label, if
+necessary. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">download</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Breast001&#39;</span><span class="p">,</span> <span class="s">&#39;Session03&#39;</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s">&#39;reg_jA4K&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>downloads the NiFTI files for the XNAT experiment with label
+<tt class="docutils literal"><span class="pre">Breast001_Session03</span></tt> and resource label <tt class="docutils literal"><span class="pre">reg_jA4K</span></tt>.</p>
+<p>The files are downloaded to the following directory:</p>
+<blockquote>
+<div>&lt;dest&gt;/&lt;project&gt;/&lt;subject&gt;/&lt;series&gt;/&lt;container_type&gt;/&lt;container&gt;</div></blockquote>
+<p>where:</p>
+<ul class="simple">
+<li>&lt;dest&gt; is the destination directory (given by the <em>dest</em>
+argument or the cwd)</li>
+<li>&lt;project&gt; is the XNAT project</li>
+<li>&lt;subject&gt; is the relative XNAT subject label, e.g. <tt class="docutils literal"><span class="pre">Breast001</span></tt></li>
+<li>&lt;experiment&gt; is the relative XNAT experiment label, e.g. <tt class="docutils literal"><span class="pre">Session03</span></tt></li>
+<li>&lt;container_type&gt; is the XNAT container type, e.g. <tt class="docutils literal"><span class="pre">assessor</span></tt></li>
+<li>&lt;container&gt; is the relative XNAT container label, e.g. <tt class="docutils literal"><span class="pre">pk_A4r3aw</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject label</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment label</li>
+<li><strong>opts</strong> &#8211; the following keyword options:</li>
+<li><strong>scan</strong> &#8211; the scan number</li>
+<li><strong>reconstruction</strong> &#8211; the reconstruction name</li>
+<li><strong>analysis</strong> &#8211; the analysis name</li>
+<li><strong>container_type</strong> &#8211; the container type, if no specific
+container is specified (default <tt class="docutils literal"><span class="pre">scan</span></tt>)</li>
+<li><strong>resource</strong> &#8211; the resource name
+(scan default is <tt class="docutils literal"><span class="pre">NIFTI</span></tt>)</li>
+<li><strong>inout</strong> &#8211; the <tt class="docutils literal"><span class="pre">in</span></tt>/<tt class="docutils literal"><span class="pre">out</span></tt> container resource qualifier
+(default <tt class="docutils literal"><span class="pre">out</span></tt> for a container type that requires this option)</li>
+<li><strong>file</strong> &#8211; the XNAT file name
+(default all files in the resource)</li>
+<li><strong>dest</strong> &#8211; the optional download location
+(default current directory)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the downloaded file names</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.download_file">
+<tt class="descname">download_file</tt><big>(</big><em>file_obj</em>, <em>dest</em>, <em>**opts</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.download_file" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_obj</strong> &#8211; the XNAT File object</li>
+<li><strong>dest</strong> &#8211; the target directory</li>
+<li><strong>opts</strong> &#8211; the following option:</li>
+<li><strong>force</strong> &#8211; overwrite existing file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the downloaded file path</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.exists">
+<tt class="descname">exists</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;return whether the given object is an existing XNAT object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.expand_path">
+<tt class="descname">expand_path</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.expand_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT object children in the given XNAT object path.
+The <em>path</em> string argument must conform to the
+<a class="reference internal" href="#qixnat.helpers.path_hierarchy" title="qixnat.helpers.path_hierarchy"><tt class="xref py py-meth docutils literal"><span class="pre">qixnat.helpers.path_hierarchy()</span></tt></a> requirements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; the path string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the XNAT child label list</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">ChildNotFoundError if there is no such child</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.find">
+<tt class="descname">find</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment=None</em>, <em>**opts</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the given XNAT object in the hierarchy:</p>
+<blockquote>
+<div>/project/PROJECT/subject/SUBJECT/experiment/EXPERIMENT/CTR_TYPE/CONTAINER</div></blockquote>
+<p>where CTR_TYPE is the experiment child type, e.g. <tt class="docutils literal"><span class="pre">scan</span></tt>.</p>
+<p>If the <tt class="docutils literal"><span class="pre">create</span></tt> flag is set, then the object is created if it
+does not yet exist.</p>
+<p>The keyword arguments specify the experiment child container and
+resource. The container keyword argument associates the container
+type to the container name, e.g. <tt class="docutils literal"><span class="pre">reconstruction=reg_zPa4R</span></tt>.
+The container type is <tt class="docutils literal"><span class="pre">scan</span></tt>, <tt class="docutils literal"><span class="pre">reconstruction</span></tt> or <tt class="docutils literal"><span class="pre">analysis</span></tt>.
+The <tt class="docutils literal"><span class="pre">analysis</span></tt> container type value corresponds to the XNAT
+<tt class="docutils literal"><span class="pre">assessor</span></tt> Image Assessment type. <tt class="docutils literal"><span class="pre">analysis</span></tt>, <tt class="docutils literal"><span class="pre">assessment</span></tt>
+and <tt class="docutils literal"><span class="pre">assessor</span></tt> are synonymous. The container name can be a string
+or integer, e.g. the scan number. The resource is specified by the
+<em>resource</em> keyword.</p>
+<p>If the experiment does not yet exist as a XNAT experiment and the
+<em>create</em> option is set, then the <em>modality</em> keyword argument
+specifies a supported XNAT modality, e.g. <tt class="docutils literal"><span class="pre">MR</span></tt> or  or <tt class="docutils literal"><span class="pre">CT</span></tt>.
+A capitalized modality value is a synonym for the XNAT experiment
+data type, e.g. <tt class="docutils literal"><span class="pre">MR</span></tt> is a synonym for <tt class="docutils literal"><span class="pre">xnat:mrSessionData</span></tt>.
+The default modality is <tt class="docutils literal"><span class="pre">MR</span></tt>.</p>
+<p>The <em>scan</em> option value can be a number or a {attribute: value}
+dictionary. If the <em>scan</em> option value is a number, then the scan
+with that number is searched. Otherwise, if the <em>scan</em> option is
+a dictionary, then the dictionary must contain the <em>number</em> key.
+Other dictionarty items are assigned to the scan object. The
+scan attributes are defined by the XNAT schema. The standard
+scan attributes are as follows:
+* note
+* quality
+* condition
+* series_description
+* documentation
+The <em>scan</em> dictionary argument can include a <em>description</em> item
+which aliases <em>series_description</em>.</p>
+<p>The <em>file</em> option specifies a file name or existing file path.
+The <em>file</em> option is used in conjunction with a <em>resource</em> option.
+If the <em>file</em> option is set, then this method searches for an XNAT
+file object whose label matches the file name in the given resource.
+If there is no such file object and the <em>create</em> flag is set, then
+the file at the given path is uploaded to the specified resource.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qiutil</span> <span class="kn">import</span> <span class="n">qixnat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">qixnat</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">xnat</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">subject</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">session</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">scan</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">resource</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">scan_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s">&#39;T1&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">scan</span> <span class="o">=</span> <span class="n">xnat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">,</span> <span class="n">scan</span><span class="o">=</span><span class="n">scan_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject name</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment name</li>
+<li><strong>opts</strong> &#8211; the following container options:</li>
+<li><strong>scan</strong> &#8211; the scan number or attribute dictionary</li>
+<li><strong>reconstruction</strong> &#8211; the reconstruction name</li>
+<li><strong>analysis</strong> &#8211; the analysis name</li>
+<li><strong>resource</strong> &#8211; the resource name</li>
+<li><strong>file</strong> &#8211; the file name</li>
+<li><strong>inout</strong> &#8211; the resource direction (<tt class="docutils literal"><span class="pre">in</span></tt> or <tt class="docutils literal"><span class="pre">out</span></tt>)</li>
+<li><strong>modality</strong> &#8211; the experiment modality (default <tt class="docutils literal"><span class="pre">MR</span></tt>)</li>
+<li><strong>create</strong> &#8211; flag indicating whether to create the XNAT object
+if it does not yet exist</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the XNAT object, if it exists, <cite>None</cite> otherwise</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>XNATError</strong> &#8211; if the project does not exist</li>
+<li><strong>ValueError</strong> &#8211; if the experiment child resource container type
+option is missing</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_analysis">
+<tt class="descname">get_analysis</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>assessor</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT assessor object for the given XNAT lineage.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><p class="first">an XNAT bug results in missing assessors if the accessing
+XNAT user has administrative priveleges, but is not a member
+or owner of the project. See the XNAT users forum
+<a class="reference external" href="https://groups.google.com/forum/#!topic/xnat_discussion/w6M74PTqgi4">post</a>
+on this topic.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the subject name</li>
+<li><strong>experiment</strong> &#8211; the experiment name</li>
+<li><strong>assessor</strong> &#8211; the assessor name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT assessor object
+(which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_assessment">
+<tt class="descname">get_assessment</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>assessor</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_assessment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT assessor object for the given XNAT lineage.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><p class="first">an XNAT bug results in missing assessors if the accessing
+XNAT user has administrative priveleges, but is not a member
+or owner of the project. See the XNAT users forum
+<a class="reference external" href="https://groups.google.com/forum/#!topic/xnat_discussion/w6M74PTqgi4">post</a>
+on this topic.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the subject name</li>
+<li><strong>experiment</strong> &#8211; the experiment name</li>
+<li><strong>assessor</strong> &#8211; the assessor name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT assessor object
+(which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_assessor">
+<tt class="descname">get_assessor</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>assessor</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_assessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT assessor object for the given XNAT lineage.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><p class="first">an XNAT bug results in missing assessors if the accessing
+XNAT user has administrative priveleges, but is not a member
+or owner of the project. See the XNAT users forum
+<a class="reference external" href="https://groups.google.com/forum/#!topic/xnat_discussion/w6M74PTqgi4">post</a>
+on this topic.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the subject name</li>
+<li><strong>experiment</strong> &#8211; the experiment name</li>
+<li><strong>assessor</strong> &#8211; the assessor name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT assessor object
+(which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_experiment">
+<tt class="descname">get_experiment</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT experiment object for the given XNAT lineage.
+The experiment name is qualified by the subject name prefix,
+if necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject label</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT experiment (which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_experiment_resource">
+<tt class="descname">get_experiment_resource</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>resource</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_experiment_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT resource object for the given XNAT lineage.
+The resource parent is the XNAT experiment experiment.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the subject name</li>
+<li><strong>experiment</strong> &#8211; the experiment name</li>
+<li><strong>resource</strong> &#8211; the XNAT resource name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT resource object
+(which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_reconstruction">
+<tt class="descname">get_reconstruction</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>recon</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_reconstruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT reconstruction object for the given XNAT lineage.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><p class="first">The XNAT reconstruction data type is deprecated. Use an
+experiment resource instead.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the subject name</li>
+<li><strong>experiment</strong> &#8211; the experiment name</li>
+<li><strong>recon</strong> &#8211; the XNAT reconstruction name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT reconstruction object
+(which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_scan">
+<tt class="descname">get_scan</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>scan</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT scan object for the given XNAT lineage.
+The lineage names are qualified by a prefix, if necessary,
+as described in <a class="reference internal" href="#qixnat.facade.XNAT.get_experiment" title="qixnat.facade.XNAT.get_experiment"><tt class="xref py py-meth docutils literal"><span class="pre">get_experiment()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject label</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment label</li>
+<li><strong>scan</strong> &#8211; the XNAT scan name or number</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT scan object (which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_session">
+<tt class="descname">get_session</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT experiment object for the given XNAT lineage.
+The experiment name is qualified by the subject name prefix,
+if necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject label</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT experiment (which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.get_subject">
+<tt class="descname">get_subject</tt><big>(</big><em>project</em>, <em>subject</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.get_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT subject object for the given XNAT lineage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the corresponding XNAT subject (which may not exist)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qixnat.facade.XNAT.upload">
+<tt class="descname">upload</tt><big>(</big><em>project</em>, <em>subject</em>, <em>experiment</em>, <em>*in_files</em>, <em>**opts</em><big>)</big><a class="headerlink" href="#qixnat.facade.XNAT.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports the given files into XNAT. The target XNAT resource has the
+following hierarchy:</p>
+<div class="highlight-python"><div class="highlight"><pre>/project/PROJECT/
+    subject/SUBJECT/
+        experiment/SESSION/
+            [CTR_TYPE/CONTAINER/]
+                resource/RESOURCE
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li>the <em>experiment</em> parameter is the XNAT experiment name</li>
+<li>CTR_TYPE is the experiment child type <tt class="docutils literal"><span class="pre">scan</span></tt>, <tt class="docutils literal"><span class="pre">assessor</span></tt>
+or <tt class="docutils literal"><span class="pre">reconstruction</span></tt></li>
+<li>CONTAINER is the container name</li>
+<li>the default scan RESOURCE is the file format, e.g. <tt class="docutils literal"><span class="pre">NIFTI</span></tt> or
+<tt class="docutils literal"><span class="pre">DICOM</span></tt></li>
+<li>if <tt class="docutils literal"><span class="pre">CTR_TYPE/CONTAINER/</span></tt> is missing, then the resource parent
+is the experiment</li>
+</ul>
+<p>The keyword arguments include the experiment child container, scan
+<em>modality</em> and <em>resource</em> name. The required container keyword
+argument associates the container type to the container name,
+e.g. <tt class="docutils literal"><span class="pre">scan=1</span></tt>. The container type is <tt class="docutils literal"><span class="pre">scan</span></tt>, <tt class="docutils literal"><span class="pre">reconstruction</span></tt>
+or <tt class="docutils literal"><span class="pre">analysis</span></tt>. The <tt class="docutils literal"><span class="pre">analysis</span></tt> container type value corresponds
+to the XNAT <tt class="docutils literal"><span class="pre">assessor</span></tt> Image Assessment type. <tt class="docutils literal"><span class="pre">analysis</span></tt>,
+<tt class="docutils literal"><span class="pre">assessment</span></tt> and <tt class="docutils literal"><span class="pre">assessor</span></tt> are synonymous. The container name
+can be a string or integer, e.g. the scan number.</p>
+<p>If the XNAT file extension is <tt class="docutils literal"><span class="pre">.nii</span></tt>, <tt class="docutils literal"><span class="pre">.nii.gz</span></tt>, <tt class="docutils literal"><span class="pre">.dcm</span></tt> or
+<tt class="docutils literal"><span class="pre">.dcm.gz</span></tt>, then the default scan resource name <tt class="docutils literal"><span class="pre">NIFTI</span></tt> or
+<tt class="docutils literal"><span class="pre">DICOM</span></tt> is inferred from the extension.</p>
+<p>If the experiment does not yet exist as a XNAT experiment, then the
+modality keyword argument is required. The modality is any supported
+XNAT modality, e.g. <tt class="docutils literal"><span class="pre">MR</span></tt> or  or <tt class="docutils literal"><span class="pre">CT</span></tt>. A capitalized modality
+value is a synonym for the XNAT experiment data type, e.g. <tt class="docutils literal"><span class="pre">MR</span></tt> is
+a synonym for <tt class="docutils literal"><span class="pre">xnat:mrSessionData</span></tt>.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">qiutil</span> <span class="kn">import</span> <span class="n">qixnat</span>
+<span class="k">with</span> <span class="n">qixnat</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">xnat</span><span class="p">:</span>
+    <span class="n">xnat</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="s">&#39;QIN&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003&#39;</span><span class="p">,</span> <span class="s">&#39;Sarcoma003_Session01&#39;</span><span class="p">,</span>
+        <span class="n">scan</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s">&#39;MR&#39;</span><span class="p">,</span> <span class="s">&#39;/path/to/image.nii.gz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> &#8211; the XNAT project id</li>
+<li><strong>subject</strong> &#8211; the XNAT subject name</li>
+<li><strong>experiment</strong> &#8211; the XNAT experiment name</li>
+<li><strong>in_files</strong> &#8211; the input files to upload</li>
+<li><strong>opts</strong> &#8211; the following experiment child container, file format,
+scan modality and optional additional XNAT file creation
+options:</li>
+<li><strong>scan</strong> &#8211; the scan number</li>
+<li><strong>reconstruction</strong> &#8211; the reconstruction name</li>
+<li><strong>analysis</strong> &#8211; the analysis name</li>
+<li><strong>modality</strong> &#8211; the experiment modality</li>
+<li><strong>resource</strong> &#8211; the resource name (scan default is inferred from
+the file extension)</li>
+<li><strong>inout</strong> &#8211; the container <tt class="docutils literal"><span class="pre">in</span></tt>/<tt class="docutils literal"><span class="pre">out</span></tt> option
+(default <tt class="docutils literal"><span class="pre">out</span></tt> for a container type that requires this option)</li>
+<li><strong>force</strong> &#8211; flag indicating whether to replace an existing
+file (default False)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the new XNAT file names</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>XNATError</strong> &#8211; if the project does not exist</li>
+<li><strong>ValueError</strong> &#8211; if the experiment child resource container type
+option is missing</li>
+<li><strong>ValueError</strong> &#8211; if the XNAT experiment does not exist and the
+modality option is missing</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-qixnat.helpers">
+<span id="helpers"></span><h2><a class="reference internal" href="#module-helpers" title="helpers: XNAT utility functions."><tt class="xref py py-mod docutils literal"><span class="pre">helpers</span></tt></a><a class="headerlink" href="#module-qixnat.helpers" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-helpers"></span><dl class="function">
+<dt id="qixnat.helpers.hierarchical_label">
+<tt class="descclassname">qixnat.helpers.</tt><tt class="descname">hierarchical_label</tt><big>(</big><em>*names</em><big>)</big><a class="headerlink" href="#qixnat.helpers.hierarchical_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT label for the given hierarchical name, qualified by
+a prefix if necessary.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qixnat.helpers</span> <span class="kn">import</span> <span class="n">hierarchical_label</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hierarchical_label</span><span class="p">(</span><span class="s">&#39;Breast003&#39;</span><span class="p">,</span> <span class="s">&#39;Session01&#39;</span><span class="p">)</span>
+<span class="go">&#39;Breast003_Session01&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hierarchical_label</span><span class="p">(</span><span class="s">&#39;Breast003&#39;</span><span class="p">,</span> <span class="s">&#39;Breast003_Session01&#39;</span><span class="p">)</span>
+<span class="go">&#39;Breast003_Session01&#39;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>names</strong> &#8211; the object names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the corresponding XNAT label</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="qixnat.helpers.parse_session_label">
+<tt class="descclassname">qixnat.helpers.</tt><tt class="descname">parse_session_label</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#qixnat.helpers.parse_session_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the given XNAT session label into <em>subject</em> and
+<em>session</em> based on the <tt class="xref py py-meth docutils literal"><span class="pre">hierarchical_label()</span></tt> naming
+standard.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; the label to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the <em>(subject, session)</em> tuple</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">if there fewer than three hierarchical levels</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="qixnat.helpers.path_hierarchy">
+<tt class="descclassname">qixnat.helpers.</tt><tt class="descname">path_hierarchy</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#qixnat.helpers.path_hierarchy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the given XNAT path into a list of <em>(type, value)</em> tuples.</p>
+<p>The <em>path</em> string argument must consist of a sequence of slash-delimited
+XNAT object specifications, where each specification is either a singular
+XNAT type and value, e.g. &#8216;subject/Breast003&#8217;, or a pluralized XNAT type,
+e.g. &#8216;resources&#8217;. If the path starts with a forward slash, then the first
+three components can elide the XNAT type. Thus, the following are
+equivalent:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">path_hierarchy</span><span class="p">(</span><span class="s">&#39;/project/QIN/subject/Breast003/experiment/Session02&#39;</span><span class="p">)</span>
+<span class="n">path_hierarchy</span><span class="p">(</span><span class="s">&#39;/QIN/Breast003/Session02&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following XNAT object type synonyms are allowed:
+* <tt class="docutils literal"><span class="pre">session</span></tt> =&gt; <tt class="docutils literal"><span class="pre">experiment</span></tt>
+* <tt class="docutils literal"><span class="pre">analysis</span></tt> or <tt class="docutils literal"><span class="pre">assessment</span></tt> =&gt; <tt class="docutils literal"><span class="pre">assessor</span></tt>
+Pluralized type synonyms are standardized according to the singular form,
+e.g. <tt class="docutils literal"><span class="pre">analyses</span></tt> =&gt; <tt class="docutils literal"><span class="pre">assessors</span></tt>.</p>
+<p>The path hierarchy is a list of <em>(type, value)</em> tuples. A pluralization
+value is a wild card.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qixnat.helpers</span> <span class="kn">import</span> <span class="n">path_hierarchy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;session/Session03/resource/reg_Qzu7R/files&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_hierarchy</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[(&#39;experiment&#39;, &#39;Session03&#39;), (&#39;resource&#39;, &#39;reg_Qzu7R&#39;), (&#39;files&#39;, &#39;*&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/project/QIN/subject/Breast*/session/*/resources&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_hierarchy</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[(&#39;project&#39;, &#39;QIN&#39;), (&#39;subjects&#39;, &#39;Breast*&#39;), (&#39;experiments&#39;, &#39;*&#39;), (&#39;resources&#39;, &#39;*&#39;)]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; the XNAT object path string or list</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the path hierarchy list</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="qixnat.helpers.xnat_name">
+<tt class="descclassname">qixnat.helpers.</tt><tt class="descname">xnat_name</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#qixnat.helpers.xnat_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT object name as follows:
+* If the object is a Reconstruction, then the XNAT id
+* Otherwise, the XNAT label</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> &#8211; the XNAT object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the XNAT label or id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="qixnat.helpers.xnat_path">
+<tt class="descclassname">qixnat.helpers.</tt><tt class="descname">xnat_path</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#qixnat.helpers.xnat_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the XNAT object path consisting of the <tt class="xref py py-meth docutils literal"><span class="pre">xnat_name()</span></tt>
+path components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> &#8211; the XNAT object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the XNAT path</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Documentation</a><ul>
+<li><a class="reference internal" href="#module-qixnat.command"><tt class="docutils literal"><span class="pre">command</span></tt></a></li>
+<li><a class="reference internal" href="#module-qixnat.configuration"><tt class="docutils literal"><span class="pre">configuration</span></tt></a></li>
+<li><a class="reference internal" href="#module-qixnat.connection"><tt class="docutils literal"><span class="pre">connection</span></tt></a></li>
+<li><a class="reference internal" href="#module-qixnat.constants"><tt class="docutils literal"><span class="pre">constants</span></tt></a></li>
+<li><a class="reference internal" href="#module-qixnat.facade"><tt class="docutils literal"><span class="pre">facade</span></tt></a></li>
+<li><a class="reference internal" href="#module-qixnat.helpers"><tt class="docutils literal"><span class="pre">helpers</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">qixnat - XNAT facade</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="qixnat - XNAT facade"
+             >previous</a> |</li>
+        <li><a href="../index.html">qixnat v2.2.1</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, OHSU Knight Cancer Institute.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
