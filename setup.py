@@ -13,13 +13,23 @@ def version(package):
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
+PYXNAT_INSTALLS = ['httplib2', 'lxml', 'pyxnat']
+"""
+The packages required to build pyxnat. These packages must be
+installed manually. See the installation instructions for details.
+"""
+
 def requires():
     """
-    @return: the ``requirements.txt`` package specifications
+    This function filters out the ``PYXNAT_INSTALLS``.
+    
+    @return: the installable ``requirements.txt`` package specifications
     """
     with open('requirements.txt') as f:
-        return f.read().splitlines()
-        
+        lines = f.read().splitlines()
+        include = lambda line: not any((line.startswith(lib) for lib in PYXNAT_INSTALLS))
+        return [line for line in lines if include(line)]
+
 
 def readme():
     with open("README.rst") as f:

@@ -29,9 +29,7 @@ Installation
 ``qixnat`` depends on the pyxnat_ module, which can in turn can be tricky to
 install. Furthermore, the `pyxnat installation guide`_ is itself insufficient
 to install pyxnat dependencies consistently in all environments. Consequently,
-``qixnat`` installation cannot be performed using the customary Python_ pip_
-command ``pip install qixnat`` alone. Anaconda_ is recommended for ensuring
-package and library consistency, according to the following steps:
+the following installation steps must be followed to ensure a correct build:
 
 1. On Linux only, install the ``libxslt`` dev package. For Ubuntu or other
    Debian-based systems, execute::
@@ -42,7 +40,8 @@ package and library consistency, according to the following steps:
    
        sudo yum install libxslt-dev
 
-2. Install Anaconda_ in ``$HOME/anaconda`` on your workstation according to
+2. Anaconda_ is recommended for ensuring package and library consistency.
+  Install Anaconda in ``$HOME/anaconda`` on your workstation according to
    the `Anaconda Installation Instructions`_.
 
 3. Add ``$HOME/anaconda/bin`` to your PATH::
@@ -74,9 +73,15 @@ package and library consistency, according to the following steps:
    file in succession, one at a time. Ignore ``No packages found`` messages for
    non-Anaconda packages. These packages will be installed in the next step.
 
-8. Install the ``qixnat`` package::
+8. Install the ``qixnat`` dependencies not hosted by Anaconda::
+
+       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 pip install
+
+9. Install the ``qixnat`` package::
 
        pip install qixnat
+  
+  The preceding dependency installation steps must be performed prior to installing qixnat itself. 
 
 
 *****
