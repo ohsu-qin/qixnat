@@ -9,7 +9,7 @@ Synopsis
 ********
 qixnat provides a XNAT_ facade.
 
-:API: http://qixnat.readthedocs.org/en/latest/api/index.html
+:API: https://github.com/ohsu-qin/qixnat/blob/master/doc/build/html/api/index.html
 
 :Git: github.com/ohsu-qin/qixnat
 
@@ -58,18 +58,21 @@ package and library consistency, according to the following steps:
    and add the following lines::
 
       # Prepend the locally installed applications.
-      export PATH=$ANACONDA_HOME:$PATH
-      # Prepend the qipipe virtual environment.
+      export PATH=$HOME/anaconda/bin:$PATH
+      # Prepend the qin virtual environment.
       source activate qin  
 
-6. Refresh your environment, e.g. quit your console and reopen a new one.
+6. Refresh your environment by opening a new console or running the following:
+      
+      . $HOME/.bash_profile
 
 7. Install the ``qixnat`` dependencies hosted by Anaconda::
 
        wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install -y
 
-   Ignore ``No packages found`` messages for non-Anaconda packages. These
-   packages will be installed in the next step.
+   The above command installs ``qixnat`` dependencies in the ``requirements.txt``
+   file in succession, one at a time. Ignore ``No packages found`` messages for
+   non-Anaconda packages. These packages will be installed in the next step.
 
 8. Install the ``qixnat`` package::
 
@@ -81,10 +84,11 @@ Usage
 *****
 Run the following command for the utility options::
 
-    qicp --help
-    qils --help
-    qirm --help
+    cpxnat --help
+    lsxnat --help
+    rmxnat --help
 
+The primary API interface of interest is the `XNAT facade`_ class.
 
 ---------
 
@@ -113,6 +117,8 @@ Run the following command for the utility options::
 .. _pyxnat installation guide: https://pythonhosted.org/pyxnat/installing.html 
 
 .. _XNAT: http://www.xnat.org/
+
+.. _XNAT facade: https://github.com/ohsu-qin/qixnat/blob/master/doc/build/html/api/index.html#module-qixnat.facade
 
 .. toctree::
   :hidden:
