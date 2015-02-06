@@ -43,11 +43,11 @@ setup(
     author_email = 'loneyf@ohsu.edu',
     platforms = 'Any',
     license = 'MIT',
-    keywords = 'Imaging QIN XNAT',
+    keywords = 'Imaging XNAT',
     packages = find_packages(exclude=['test**']),
     include_package_data = True,
     scripts = glob.glob('bin/*'),
-    url = 'https://github.com/ohsu-qin/qixnat',
+    url = 'http://qixnat.readthedocs.org/en/latest/',
     description = 'XNAT facade.',
     long_description = readme(),
     classifiers = [
