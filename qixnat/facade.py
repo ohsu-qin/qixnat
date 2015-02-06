@@ -622,9 +622,12 @@ class XNAT(object):
 
     def find(self, project, subject, experiment=None, **opts):
         """
-        Finds the given XNAT object in the hierarchy:
+        Finds the given XNAT object in the following hierarchy::
 
-            /project/PROJECT/subject/SUBJECT/experiment/EXPERIMENT/CTR_TYPE/CONTAINER
+            /project/PROJECT/
+                subject/SUBJECT/
+                    experiment/EXPERIMENT/
+                        CTR_TYPE/CONTAINER
 
         where CTR_TYPE is the experiment child type, e.g. ``scan``.
 
