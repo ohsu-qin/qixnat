@@ -1,15 +1,19 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
-2.1.6 / 2014-01-14
+3.1.1 / 2015-02-15
+------------------
+* Make the utilities more *nix-like.
+
+2.1.6 / 2015-01-14
 ------------------
 * Fix qicp and qirm.
 
-2.1.5 / 2014-01-14
+2.1.5 / 2015-01-14
 ------------------
 * Fix qils.
 
-2.1.4 / 2014-01-12
+2.1.4 / 2015-01-12
 ------------------
 * Suggest Anaconda in the install instructions.
 
