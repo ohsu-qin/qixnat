@@ -1,15 +1,20 @@
 import os
 import re
-import pyxnat
-from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
-                                   Reconstructions, Assessor, Assessors,
-                                   Resources)
 from qiutil.logging import logger
 from qiutil.collections import is_nonstring_iterable
 from .configuration import configuration_file
-from .constants import (CONTAINER_TYPES, ASSESSOR_SYNONYMS,
-                        INOUT_CONTAINER_TYPES, HIERARCHICAL_LABEL_TYPES)
 from .helpers import (xnat_name, path_hierarchy, hierarchical_label)
+try:
+    import pyxnat
+    from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
+                                       Reconstructions, Assessor, Assessors,
+                                       Resources)
+    from .constants import (CONTAINER_TYPES, ASSESSOR_SYNONYMS,
+                            INOUT_CONTAINER_TYPES, HIERARCHICAL_LABEL_TYPES)
+except ImportError:
+    # Ignore pyxnat import failure to allow ReadTheDocs auto-builds.
+    # See the installation instructions for why auto-build fails.
+    pass
 
 
 class XNATError(Exception):

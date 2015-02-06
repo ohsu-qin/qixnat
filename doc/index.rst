@@ -9,7 +9,7 @@ Synopsis
 ********
 qixnat provides a XNAT_ facade.
 
-:API: https://github.com/ohsu-qin/qixnat/blob/master/doc/build/html/api/index.html
+:API: http://qixnat.readthedocs.org/en/latest/api/index.html
 
 :Git: github.com/ohsu-qin/qixnat
 

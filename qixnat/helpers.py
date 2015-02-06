@@ -5,9 +5,14 @@
 
 import os
 import re
-from pyxnat.core.resources import Reconstruction
 from qiutil.logging import logger
-from .constants import (XNAT_TYPES, UNLABELED_XNAT_TYPES, ASSESSOR_SYNONYMS)
+try:
+    from pyxnat.core.resources import Reconstruction
+    from .constants import (XNAT_TYPES, UNLABELED_XNAT_TYPES, ASSESSOR_SYNONYMS)
+except ImportError:
+    # Ignore pyxnat import failure to allow ReadTheDocs auto-builds.
+    # See the installation instructions for why auto-build fails.
+    pass
 
 def xnat_path(obj):
     """
