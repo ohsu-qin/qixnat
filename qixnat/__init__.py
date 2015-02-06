@@ -1,6 +1,6 @@
 from .connection import connect
 
-__version__ = '3.1.1'
+__version__ = '3.1.2'
 """
 The one-based major.minor.patch version.
 The version numbering scheme loosely follows http://semver.org/.
