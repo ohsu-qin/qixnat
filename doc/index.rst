@@ -123,7 +123,7 @@ The primary API interface of interest is the `XNAT facade`_ class.
 
 .. _XNAT: http://www.xnat.org/
 
-.. _XNAT facade: https://github.com/ohsu-qin/qixnat/blob/master/doc/build/html/api/index.html#module-qixnat.facade
+.. _XNAT facade: http://qixnat.readthedocs.org/en/latest/api/index.html#module-qixnat.facade.XNAT
 
 .. toctree::
   :hidden:
