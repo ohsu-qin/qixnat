@@ -5,10 +5,6 @@ try:
                                        Reconstruction, Reconstructions,
                                        Assessor, Assessors)
 
-    XNAT_TYPES = set(EXPERIMENT_PATH_TYPES + CONTAINER_TYPES + RESOURCE_TYPES +
-                     ['file'])
-    """The standardized XNAT object types."""
-
     UNLABELED_XNAT_TYPES = [Reconstruction]
     """The XNAT object types which do not have a label attribute."""
 
@@ -26,6 +22,10 @@ CONTAINER_TYPES = ['scan', 'reconstruction', 'assessor']
 
 RESOURCE_TYPES = ['resource', 'in_resource', 'out_resource']
 """The XNAT resource types."""
+
+XNAT_TYPES = set(EXPERIMENT_PATH_TYPES + CONTAINER_TYPES + RESOURCE_TYPES +
+                 ['file'])
+"""The standardized XNAT object types."""
 
 ASSESSOR_SYNONYMS = ['analysis', 'assessment']
 """Alternative designations for the XNAT ``assessor`` container type."""
