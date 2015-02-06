@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Deletes an OHSU QIN XNAT object.
+Deletes a XNAT object.
 """
 import sys
 import os
