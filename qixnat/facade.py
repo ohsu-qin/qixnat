@@ -59,7 +59,7 @@ class XNAT(object):
         +----------------+-------------+---------------------------------+
         | Resource       | reg_zaK1Bd  | reg_zaK1Bd                      |
         +----------------+-------------+---------------------------------+
-        | File           |series37.nii | series37.nii                    |
+        | File           | volume3.nii | volume3.nii                     |
         +----------------+-------------+---------------------------------+
 
         Table 1. Example XNAT label generation.
@@ -155,29 +155,23 @@ class XNAT(object):
         +----------------+------------+-------------------------------------+
         | Resource       | 3187       | reg_zaK1Bd                          |
         +----------------+------------+-------------------------------------+
-        | File           |series37.nii| series37.nii                        |
+        | File           | image3.nii | image3.nii                          |
         +----------------+------------+-------------------------------------+
 
         Table 2. Example XNAT ids and labels.
 
     In the example above, the XNAT assessor object is obtained as
-    follows:
+    follows::
 
-    >>> from qiutil import qixnat
-    >>> with qixnat.connect() as xnat:
-    ...     recon = xnat.get_assessor('QIN', 'Breast003', 'Session01',
-    ...                               'pk_4kbEv3r')
+        from qiutil import qixnat
+        with qixnat.connect() as xnat:
+             recon = xnat.get_assessor('QIN', 'Breast003', 'Session01',
+                                       'pk_4kbEv3r')
 
-    A scan NiFTI file ``series1.nii.gz`` is uploaded using the following
-    code::
+    XNAT files are always placed in a XNAT *resource*, e.g.::
 
-        xnat.upload('QIN', 'Breast003', 'Session01', scan=1, 'series1.nii.gz')
-
-    The NIFTI file is placed in the default scan resource ``NIFTI``. DICOM scan
-    upload requires the *resource* option, e.g.::
-
-        xnat.upload('QIN', 'Breast003', 'Session01', scan=1, resource=DICOM,
-                    *dicom_files)
+        xnat.upload('QIN', 'Breast003', 'Session01', scan=1,
+                    resource='DICOM', *dicom_files)
     """
 
     SUBJECT_QUERY_FMT = "/project/%s/subject/%s"
