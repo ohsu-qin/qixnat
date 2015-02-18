@@ -118,13 +118,13 @@ def _parse_arguments():
     # The --force and --skip-existing options are exclusive.
     existing_opts = parser.add_mutually_exclusive_group()
     existing_opts.add_argument('-f', '--force', action='store_true',
-                               help="overwrite existing target file")
+                               help='overwrite existing target file')
     existing_opts.add_argument('-s', '--skip-existing', action='store_true',
                                help="don't copy if the target file exists")
 
     # The source file(s) or XNAT hierarchy path.
-    parser.add_argument('paths', nargs='+', metavar='[xnat:]PATH',
-                        help="the file or XNAT object path(s)")
+    parser.add_argument('paths', nargs='+', metavar="PATH",
+                        help='the file(s) or xnat:/project/subject/... object path(s)')
 
     # Parse all arguments.
     args = vars(parser.parse_args())
