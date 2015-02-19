@@ -724,7 +724,11 @@ class XNAT(object):
             if create:
                 # If the experiment must be created, then we need the
                 # modality.
-                modality = opts.pop('modality', 'MR')
+                modality = opts.pop('modality', None)
+                if not modality:
+                    raise ValueError("The modality argument is missing to"
+                                     " create /%s/%s/%s" %
+                                     (project, subject, experiment))
                 std_modality = self._standardize_modality(modality)
                 # The odd way pyxnat specifies the modality is the
                 # experiments option.

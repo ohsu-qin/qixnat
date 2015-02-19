@@ -43,14 +43,15 @@ class TestFacade(object):
 
     def test_find_subject(self):
         with qixnat.connect() as xnat:
-            sbj = xnat.find(PROJECT, SUBJECT, create=True)
+            sbj = xnat.find(PROJECT, SUBJECT, modality='MR', create=True)
             assert_true(xnat.exists(sbj), "Subject not created: %s" % SUBJECT)
             sbj = xnat.find(PROJECT, SUBJECT)
             assert_is_not_none(sbj, "Subject not found: %s" % SUBJECT)
     
     def test_find_experiment(self):
         with qixnat.connect() as xnat:
-            sbj = xnat.find(PROJECT, SUBJECT, SESSION, create=True)
+            sbj = xnat.find(PROJECT, SUBJECT, SESSION, modality='MR',
+                            create=True)
             assert_true(xnat.exists(sbj),
                         "Subject %s session not created: %s" %
                         (SUBJECT, SESSION))
@@ -60,7 +61,8 @@ class TestFacade(object):
     
     def test_find_scan(self):
         with qixnat.connect() as xnat:
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN, create=True)
+            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN,
+                             modality='MR', create=True)
             assert_true(xnat.exists(scan),
                         "Subject %s session %s scan not created: %s" %
                         (SUBJECT, SESSION, SCAN))
@@ -71,20 +73,22 @@ class TestFacade(object):
     def test_create_scan_with_description(self):
         with qixnat.connect() as xnat:
             scan_opts = dict(number=SCAN, description='T1')
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=scan_opts, create=True)
+            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=scan_opts,
+                             modality='MR', create=True)
             assert_true(xnat.exists(scan), "Subject %s session %s scan not"
-                                           " created: %s" % (SUBJECT, SESSION, SCAN))
+                                           " created: %s" %
+                                           (SUBJECT, SESSION, SCAN))
             scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN)
             assert_is_not_none(scan, "Subject %s session %s scan not found:"
                                      " %s" % (SUBJECT, SESSION, SCAN))
             assert_equal(scan.attrs.get('series_description'), 'T1',
-                        "Subject %s session %s scan %d description is incorrect" %
-                        (SUBJECT, SESSION, SCAN))
+                        "Subject %s session %s scan %d description is"
+                        " incorrect" % (SUBJECT, SESSION, SCAN))
     
     def test_find_resource(self):
         with qixnat.connect() as xnat:
             rsc = xnat.find(PROJECT, SUBJECT, SESSION, resource=REGISTRATION,
-                            create=True)
+                            modality='MR', create=True)
             assert_true(xnat.exists(rsc),
                         "Subject %s session %s resource not created: %s" %
                         (SUBJECT, SESSION, REGISTRATION))
@@ -94,17 +98,20 @@ class TestFacade(object):
                                  rsc.__class__.__name__))
             rsc = xnat.find(PROJECT, SUBJECT, SESSION, resource=REGISTRATION)
             assert_is_not_none(rsc, "Subject %s session %s resource not"
-                                    " found: %s" % (SUBJECT, SESSION, REGISTRATION))
+                                    " found: %s" %
+                                    (SUBJECT, SESSION, REGISTRATION))
     
     def test_find_reconstruction(self):
         with qixnat.connect() as xnat:
             reco = xnat.find(PROJECT, SUBJECT, SESSION,
-                            reconstruction=RECONSTRUCTION, create=True)
+                            reconstruction=RECONSTRUCTION, modality='MR',
+                            create=True)
             assert_true(xnat.exists(reco),
                         "Subject %s session %s reconstruction not created:"
                         " %s" % (SUBJECT, SESSION, RECONSTRUCTION))
             reco = xnat.find(PROJECT, SUBJECT, SESSION,
-                            reconstruction=RECONSTRUCTION, create=True)
+                             reconstruction=RECONSTRUCTION, modality='MR',
+                             create=True)
             assert_is_not_none(reco, "Subject %s session %s reconstruction"
                                      " not found: %s" %
                                      (SUBJECT, SESSION, RECONSTRUCTION))
@@ -112,14 +119,14 @@ class TestFacade(object):
     def test_find_assessor(self):
         with qixnat.connect() as xnat:
             anl = xnat.find(PROJECT, SUBJECT, SESSION, assessor=ASSESSOR,
-                            create=True)
+                            modality='MR', create=True)
             assert_true(xnat.exists(anl),
                         "Subject %s session %s assessor not created: %s" %
                         (SUBJECT, SESSION, ASSESSOR))
-            anl = xnat.find(PROJECT, SUBJECT, SESSION, assessor=ASSESSOR,
-                            create=True)
+            anl = xnat.find(PROJECT, SUBJECT, SESSION, assessor=ASSESSOR)
             assert_is_not_none(anl, "Subject %s session %s assessor not"
-                                    " found: %s" % (SUBJECT, SESSION, ASSESSOR))
+                                    " found: %s" %
+                                    (SUBJECT, SESSION, ASSESSOR))
     
     
     def test_scan_round_trip(self):
@@ -152,14 +159,15 @@ class TestFacade(object):
         f = files[0]
         assert_true(os.path.exists(f), "File not downloaded: %s" % f)
         assert_equal(set(files), set(all_files),
-                     "The %s %s scan %d download differs from all scans download:"
-                     " %s vs %s" % (SUBJECT, SESSION, SCAN, files, all_files))
+                     "The %s %s scan %d download differs from all scans"
+                     " download: %s vs %s" %
+                     (SUBJECT, SESSION, SCAN, files, all_files))
     
     def test_registration_round_trip(self):
         with qixnat.connect() as xnat:
             # Upload the file.
             xnat.upload(PROJECT, SUBJECT, SESSION, FIXTURE,
-                        resource=REGISTRATION)
+                        resource=REGISTRATION, modality='MR')
             _, fname = os.path.split(FIXTURE)
             exp = xnat.get_session(PROJECT, SUBJECT, SESSION)
             assert_true(xnat.exists(exp),
