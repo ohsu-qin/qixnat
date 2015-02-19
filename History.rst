@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+3.2.1 / 2015-02-18
+------------------
+* The modality option is required to create a session.
+
 3.1.2 / 2015-02-15
 ------------------
 * Tweak the docs.
