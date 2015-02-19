@@ -121,6 +121,9 @@ def _parse_arguments():
                                help='overwrite existing target file')
     existing_opts.add_argument('-s', '--skip-existing', action='store_true',
                                help="don't copy if the target file exists")
+    
+    # The scan modality option.
+    parser.add_argument('-m', '--modality', help="the scan modality, e.g. MR")
 
     # The source file(s) or XNAT hierarchy path.
     parser.add_argument('paths', nargs='+', metavar="PATH",
