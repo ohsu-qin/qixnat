@@ -85,9 +85,10 @@ def main(argv=sys.argv):
             # Get the session.
             prj, sbj, sess = ((pair[1] for pair in prefix))
             sess_obj = xnat.get_session(prj, sbj, sess)
-            if not xnat.exists(sess_obj):
-                raise SessionNotFoundError("No such XNAT session: %s %s %s" %
-                                           (prj, sbj, sess))
+            if not opts.get('modality') and not xnat.exists(sess_obj):
+                raise SessionNotFoundError("The --modality option is required"
+                                           " to create the XNAT session: %s %s"
+                                           " %s" % (prj, sbj, sess))
             # The remaining (type, value) pairs.
             upload_opts = dict(hierarchy[3:])
             # Add in the general command options, e.g. force.
