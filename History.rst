@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+3.2.2 / 2015-02-18
+------------------
+* Add the cpxnat --modality option.
+
 3.2.1 / 2015-02-18
 ------------------
 * The modality option is required to create a session.
