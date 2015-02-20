@@ -542,11 +542,12 @@ class XNAT(object):
         ``.dcm.gz``, then the default scan resource name ``NIFTI`` or
         ``DICOM`` is inferred from the extension.
 
-        If the experiment does not yet exist as a XNAT experiment, then the
-        modality keyword argument is required. The modality is any supported
-        XNAT modality, e.g. ``MR`` or  or ``CT``. A capitalized modality
-        value is a synonym for the XNAT experiment data type, e.g. ``MR`` is
-        a synonym for ``xnat:mrSessionData``.
+        If an XNAT object in the hierarchy does not yet exist, then it is
+        created. If the experiment does not yet exist as a XNAT experiment,
+        then the modality keyword argument is required. The modality is any
+        supported XNAT modality, e.g. ``MR`` or  or ``CT``. A capitalized
+        modality value is a synonym for the XNAT experiment data type, e.g.
+        ``MR`` is a synonym for ``xnat:mrSessionData``.
 
         Example::
 
@@ -640,7 +641,14 @@ class XNAT(object):
 
         If the experiment does not yet exist as a XNAT experiment and the
         *create* option is set, then the *modality* keyword argument
-        specifies a supported XNAT modality, e.g. ``MR`` or  or ``CT``.
+        specifies a scan modality, e.g. ``MR`` or  or ``CT``. The modality
+        argument can be one of the following forms:
+        * The XNAT modality XML value prefixed by the ``xnat`` XML context,
+            e.g. ``xnat:ctSessionData``
+        * The unqualified XNAT modality XML value, e.g. `ctSessionData``
+        * The case-insensitive XNAT modality XML value prefix, e.g. ``ct``
+            or ``CT``
+
         A capitalized modality value is a synonym for the XNAT experiment
         data type, e.g. ``MR`` is a synonym for ``xnat:mrSessionData``.
         The default modality is ``MR``.
@@ -983,6 +991,7 @@ class XNAT(object):
 
     def _standardize_modality(self, modality):
         """
+        Standardizes the modality as described in :meth:`find`.
         Examples:
 
         >>> from qiutil import qixnat
@@ -995,15 +1004,15 @@ class XNAT(object):
 
         :param modality: the modality option described in
             :meth:`find`
-        :return: the standard XNAT modality argument
+        :return: the standard XNAT modality value
         """
         if modality.startswith('xnat:'):
             return modality
-        if not modality.endswith('SessionData'):
-            if modality.isupper():
-                modality = modality.lower()
-            modality = modality + 'SessionData'
-        return 'xnat:' + modality
+        elif modality.endswith('SessionData'):
+            return 'xnat:' + modality
+        else:
+            long_modality = modality.lower() + 'SessionData'
+            return self._standardize_modality(long_modality)
 
     def _infer_resource(self, experiment, opts):
         """
