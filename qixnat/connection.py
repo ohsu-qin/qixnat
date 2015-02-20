@@ -32,4 +32,4 @@ def connect(config=None):
         connect.connect_cnt -= 1
         if not connect.connect_cnt:
             connect.xnat.close()
-            logger(__name__).debug('Closed thge XNAT connection.')
+            logger(__name__).debug('Closed the XNAT connection.')
