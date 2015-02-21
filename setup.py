@@ -48,7 +48,7 @@ setup(
     include_package_data = True,
     scripts = glob.glob('bin/*'),
     url = 'http://qixnat.readthedocs.org/en/latest/',
-    description = 'XNAT facade.',
+    description = 'XNAT utilities and Python facade',
     long_description = readme(),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
