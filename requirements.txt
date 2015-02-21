@@ -1,6 +1,4 @@
 httplib2==0.9
 lxml==3.4.0
-nose==1.3.0
 pyxnat==0.9.5.2
-Sphinx==1.2.2
 qiutil==2.1.8
