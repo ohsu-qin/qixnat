@@ -141,6 +141,8 @@ to GitHub. Documentation can be generated locally as follows:
 
 .. _ReadTheDocs: https://www.readthedocs.org
 
+.. _Sphinx: http://sphinx-doc.org/index.html
+
 .. _XNAT: http://www.xnat.org/
 
 .. _XNAT facade: http://qixnat.readthedocs.org/en/latest/api/index.html#module-qixnat.facade
