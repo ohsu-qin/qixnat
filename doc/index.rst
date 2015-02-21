@@ -93,7 +93,23 @@ Run the following command for the utility options::
     lsxnat --help
     rmxnat --help
 
-The primary API interface of interest is the `XNAT facade`_ class.
+The primary read API interface of interest is the `XNAT facade`_ class.
+
+
+***********
+Development
+***********
+
+Testing is performed with the nose_ package, which must be installed separately.
+
+Documentation is built automatically by ReadTheDocs_ when the project is pushed
+to GitHub. Documentation can be generated locally as follows:
+
+* Install Sphinx_, if necessary.
+
+* Run the following in the ``doc`` subdirectory::
+
+    make html
 
 ---------
 
@@ -113,6 +129,8 @@ The primary API interface of interest is the `XNAT facade`_ class.
 
 .. _license: https://github.com/ohsu-qin/qixnat/blob/master/LICENSE.txt
 
+.. _nose: https://nose.readthedocs.org/en/latest/
+
 .. _pip: https://pypi.python.org/pypi/pip
 
 .. _Python: http://www.python.org
@@ -120,6 +138,8 @@ The primary API interface of interest is the `XNAT facade`_ class.
 .. _pyxnat: https://pythonhosted.org/pyxnat/
 
 .. _pyxnat installation guide: https://pythonhosted.org/pyxnat/installing.html 
+
+.. _ReadTheDocs: https://www.readthedocs.org
 
 .. _XNAT: http://www.xnat.org/
 
