@@ -381,35 +381,18 @@ class XNAT(object):
         Downloads the files for the specified XNAT experiment.
 
         The keyword arguments include the resource name and the experiment
-        child container. The experiment child container option can be set to
-        a specific resource container, e.g. ``scan=1``, as described in
-        :meth:`upload`
-        or all resources of a given container type. In the latter case,
-        the *container_type* parameter is set. The permissible container
-        types are described in :meth:`upload`.
+        child container. The experiment child container option can be set
+        to either a specific resource container, e.g. ``scan=1``, as
+        described in :meth:`upload` or all resources of a given container
+        type. In the latter case, the *container_type* parameter is set.
+        The permissible container types are described in :meth:`upload`.
 
-        The experiment value is qualified by the subject, if necessary.
-        An analysis option value is qualified by the experiment label, if
-        necessary. For example::
+        The XNAT object labels are qualified, if necessary, e.g.::
 
             download('QIN', 'Breast001', 'Session03', resource='reg_jA4K')
 
         downloads the NiFTI files for the XNAT experiment with label
         ``Breast001_Session03`` and resource label ``reg_jA4K``.
-
-        The files are downloaded to the following directory:
-
-            <dest>/<project>/<subject>/<series>/<container_type>/<container>
-
-        where:
-
-        * <dest> is the destination directory (given by the *dest*
-          argument or the cwd)
-        * <project> is the XNAT project
-        * <subject> is the relative XNAT subject label, e.g. ``Breast001``
-        * <experiment> is the relative XNAT experiment label, e.g. ``Session03``
-        * <container_type> is the XNAT container type, e.g. ``assessor``
-        * <container> is the relative XNAT container label, e.g. ``pk_A4r3aw``
 
         :param project: the XNAT project id
         :param subject: the XNAT subject label
