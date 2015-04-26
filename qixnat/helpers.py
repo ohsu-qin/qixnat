@@ -74,26 +74,6 @@ def hierarchical_label(*names):
         return last
 
 
-def parse_session_label(label):
-    """
-    Parses the given XNAT session label into *subject* and
-    *session* based on the :meth:`hierarchical_label` naming
-    standard.
-
-    :param label: the label to parse
-    :return: the *(subject, session)* tuple
-    :raise ValueError: if there fewer than three hierarchical levels
-    """
-    names = label.split('_')
-    if len(names) < 2:
-        raise ValueError("The XNAT session label argument is not in"
-                         " subject_session format: %s" % label)
-    sess = names.pop()
-    sbj = '_'.join(names)
-
-    return (sbj, sess)
-
-
 def path_hierarchy(path):
     """
     Transforms the given XNAT path into a list of *(type, value)* tuples.

@@ -1,5 +1,5 @@
 from nose.tools import (assert_equal, assert_true, assert_is_not_none)
-from qixnat.helpers import (hierarchical_label, parse_session_label, path_hierarchy)
+from qixnat.helpers import (hierarchical_label, path_hierarchy)
 
 class TestHelpers(object):
     def test_short_hierarchical_label(self):
@@ -14,13 +14,6 @@ class TestHelpers(object):
         expected = 'Breast003_Session01'
         actual = hierarchical_label('Breast003', sess)
         assert_equal(actual, expected, "The hierarchical label for session %s"
-                                       " is incorrect: %s" % (sess, actual))
-
-    def test_parse_session_label(self):
-        sess = 'Breast003_Session01'
-        expected = ('Breast003', 'Session01')
-        actual = parse_session_label(sess)
-        assert_equal(actual, expected, "The parsed label for session %s"
                                        " is incorrect: %s" % (sess, actual))
 
     def test_path_hierarchy_with_leading_slash(self):
