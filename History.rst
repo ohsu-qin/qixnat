@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+3.3.1 / 2015-04-25
+------------------
+* Replace get_experiment_resource with get_scan_resource.
+
 3.2.2 / 2015-02-18
 ------------------
 * Add the cpxnat --modality option.
