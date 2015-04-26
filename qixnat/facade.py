@@ -330,7 +330,7 @@ class XNAT(object):
 
         return exp.reconstruction(label)
 
-    def get_experiment_resource(self, project, subject, experiment, resource):
+    def get_scan_resource(self, project, subject, experiment, scan, resource):
         """
         Returns the XNAT resource object for the given XNAT lineage.
         The resource parent is the XNAT experiment experiment.
@@ -340,11 +340,12 @@ class XNAT(object):
         :param project: the XNAT project id
         :param subject: the subject name
         :param experiment: the experiment name
+        :param scan: the scan number
         :param resource: the XNAT resource name
         :return: the corresponding XNAT resource object
             (which may not exist)
         """
-        exp = self.get_experiment(project, subject, experiment)
+        exp = self.get_scan(project, subject, experiment, scan)
 
         return exp.resource(resource)
 

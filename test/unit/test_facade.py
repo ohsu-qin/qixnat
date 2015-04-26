@@ -166,37 +166,30 @@ class TestFacade(object):
     def test_registration_round_trip(self):
         with qixnat.connect() as xnat:
             # Upload the file.
-            xnat.upload(PROJECT, SUBJECT, SESSION, FIXTURE,
+            xnat.upload(PROJECT, SUBJECT, SESSION, FIXTURE, scan=SCAN,
                         resource=REGISTRATION, modality='MR')
             _, fname = os.path.split(FIXTURE)
             exp = xnat.get_session(PROJECT, SUBJECT, SESSION)
             assert_true(xnat.exists(exp),
                         "The XNAT %s %s %s experiment does not exist." %
                         (PROJECT, SUBJECT, SESSION))
-            rsc_obj = xnat.get_experiment_resource(PROJECT, SUBJECT, SESSION,
-                                        REGISTRATION)
+            rsc_obj = xnat.get_scan_resource(PROJECT, SUBJECT, SESSION,
+                                             SCAN, REGISTRATION)
             assert_true(xnat.exists(rsc_obj),
-                        "The XNAT %s %s %s %s resource does not exist." %
-                        (PROJECT, SUBJECT, SESSION, REGISTRATION))
+                        "The XNAT %s %s %s scan %d %s resource does not exist." %
+                        (PROJECT, SUBJECT, SESSION, SCAN, REGISTRATION))
             file_obj = rsc_obj.file(fname)
             assert_true(xnat.exists(file_obj), "File not uploaded: %s" % fname)
     
-            # Download the single uploaded file.
-            files = xnat.download(PROJECT, SUBJECT, SESSION, dest=RESULTS,
-                                  resource=REGISTRATION)
-            # Download all resource files.
-            all_files = xnat.download(PROJECT, SUBJECT, SESSION, dest=RESULTS,
-                                      container_type='resource', force=True)
+            # Download the uploaded file.
+            files = xnat.download(PROJECT, SUBJECT, SESSION, scan=SCAN,
+                                  resource=REGISTRATION, dest=RESULTS)
     
         # Verify the result.
         assert_equal(len(files), 1,
                      "The download file count is incorrect: %d" % len(files))
         f = files[0]
         assert_true(os.path.exists(f), "File not downloaded: %s" % f)
-        assert_equal(set(files), set(all_files),
-                     "The %s %s scan %d download differs from all scans"
-                     " download: %s vs %s" %
-                     (SUBJECT, SESSION, SCAN, files, all_files))
 
 
 if __name__ == "__main__":
