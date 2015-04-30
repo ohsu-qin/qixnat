@@ -60,18 +60,16 @@ def main(argv=sys.argv):
             raise ArgumentError("Download sources must have a xnat: prefix")
         prefixed_paths = paths if prefixed[-1] else paths[:-1]
         # Remove each source leading prefix and trailing slash.
-        sources = [path[len(xnat_prefix):].rstrip('/')
+        source_args = [path[len(xnat_prefix):].rstrip('/')
                    for path in prefixed_paths]
         # Append a files suffix to the XNAT sources, if necessary.
-        for source in sources:
-            for source in sources:
-                if not re.search(r"/files?(/\w+)$", source):
-                    source += '/files'
+        fix = lambda s: s if re.search(r"/file(s|/\w+)$", s) else s + '/files' 
+        sources = [fix(src) for src in source_args]
         # If the last path argument is an XNAT directory, then
         # the destination is the current directory, otherwise
         # the destination is the last path argument.
         dest = '.' if prefixed[-1] else paths[-1]
-    
+
     # Copy the files.
     with qixnat.connect(config) as xnat:
         if direction is 'up':
