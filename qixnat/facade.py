@@ -65,7 +65,7 @@ class XNAT(object):
         Table 1. Example XNAT label generation.
 
     :Note: The XNAT Reconstruction data type is deprecated. An experiment
-        Resource should be used instead.
+        or scan Resource should be used instead.
 
     The XNAT label is set by the user and conforms to the following
     uniqueness constraints:
@@ -390,10 +390,11 @@ class XNAT(object):
 
         The XNAT object labels are qualified, if necessary, e.g.::
 
-            download('QIN', 'Breast001', 'Session03', resource='reg_jA4K')
+            download('QIN', 'Breast001', 'Session03', scan=1,
+                     resource='reg_jA4K')
 
-        downloads the NiFTI files for the XNAT experiment with label
-        ``Breast001_Session03`` and resource label ``reg_jA4K``.
+        downloads the files for the XNAT experiment with label
+        ``Breast001_Session03``, scan id 1 and resource label ``reg_jA4K``.
 
         :param project: the XNAT project id
         :param subject: the XNAT subject label
