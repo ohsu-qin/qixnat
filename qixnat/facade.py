@@ -465,8 +465,13 @@ class XNAT(object):
         :param file_obj: the XNAT File object
         :param dest: the target directory
         :param opts: the following option:
-        :keyword force: overwrite existing file
+        :keyword skip_existing: ignore the source XNAT file if it a file of the same
+            name already exists at the target location (default False)
+        :keyword force: overwrite existing file (default False)
         :return: the downloaded file path
+        :raise XNATError: if both the *skip_existing* *force* options are set
+        :raise XNATError: if the XNAT file already exists and the *force* option
+            is not set
         """
         fname = file_obj.label()
         if not fname:
@@ -480,7 +485,7 @@ class XNAT(object):
                                     ' is incompatible with the --force option')
                 return tgt
             elif not opts.get('force'):
-                raise ValueError("Download target file already exists: %s" % tgt)
+                raise XNATError("Download target file already exists: %s" % tgt)
         self._logger.debug("Downloading the XNAT file %s to %s..." %
                            (fname, dest))
         file_obj.get(tgt)
@@ -1198,10 +1203,12 @@ class XNAT(object):
           the file
         :param in_file: the input file path
         :param opts: the XNAT file options, as well as the following upload
-          options:
-        :keyword skip_existing: ignore if the file already exists
-        :keyword force: replace an existing file
+            options:
+        :keyword skip_existing: forego the upload if the target XNAT file
+             already exists (default False)
+        :keyword force: replace an existing XNAT file (default False)
         :return: the XNAT file name
+        :raise XNATError: if both the *skip_existing* *force* options are set
         :raise XNATError: if the XNAT file already exists and neither the
           *skip_existing* nor the *force* option is set
         """
