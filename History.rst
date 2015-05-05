@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+3.3.4 / 2015-05-05
+------------------
+* Update qiutil version.
+
 3.3.3 / 2015-04-30
 ------------------
 * Support cpxnat download without /files suffix.
