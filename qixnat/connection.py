@@ -83,7 +83,9 @@ def _connect(config=None, **opts):
     # directory for the exclusive use of this execution process.
     cachedir = opts.get('cachedir')
     if not cachedir:
-        connect.cachedir = opts['cachedir'] = tempfile.mkdtemp()
+        cachedir = tempfile.mkdtemp()
+        connect.cachedir = opts['cachedir'] = cachedir
+        logger(__name__).debug("The XNAT cache directory is %s" % cachedir)
 
     logger(__name__).debug('Connecting to XNAT...')
     connect.xnat = XNAT(**opts)
@@ -92,14 +94,16 @@ def _connect(config=None, **opts):
 
 def _disconnect():
     connect.xnat.close()
+    cachedir = connect.cachedir
     # If this connection created a cache directory, then delete it.
-    if connect.cachedir:
+    if cachedir:
+        # Unset the cachedir first so that it can be safely deleted. 
+        connect.cachedir = None
+        # Delete the cache directory
         try:
-            shutil.rmtree(connect.cachedir)
+            shutil.rmtree(cachedir)
         except Exception:
             # Issue a warning and move on.
-            logger(__name__).warn("Could not delete the pyxnat cache"
-                                  " directory %s" % connect.cachedir)
-        finally:
-            connect.cachedir = None
+            logger(__name__).warn("Could not delete the XNAT cache"
+                                  " directory %s" % cachedir)
     logger(__name__).debug('Closed the XNAT connection.')
