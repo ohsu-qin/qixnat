@@ -48,7 +48,10 @@ def load(config=None):
         if not config:
             return {}
     with open(config, 'rb') as fp:
-        return json.load(fp)
+        config_dict = json.load(fp)
+    
+    # Convert to regular strings.
+    return {k: str(v) for k, v in config_dict.iteritems()}
 
 
 def _default_file():
