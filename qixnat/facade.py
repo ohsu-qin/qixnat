@@ -2,7 +2,6 @@ import os
 import re
 from qiutil.logging import logger
 from qiutil.collections import is_nonstring_iterable
-from .configuration import configuration_file
 from .helpers import (xnat_name, path_hierarchy, hierarchical_label)
 try:
     import pyxnat
@@ -177,19 +176,12 @@ class XNAT(object):
     SUBJECT_QUERY_FMT = "/project/%s/subject/%s"
     """The subject query template."""
 
-    def __init__(self, config=None):
+    def __init__(self, **opts):
         """
-        :param config: the configuration file, or None to connect with
-            the :meth:`configuration_file`
+        :param opts: the XNAT configuration options
         """
         self._logger = logger(__name__)
-        self._connect(config)
-
-    def _connect(self, config=None):
-        if not config:
-            config = configuration_file()
-        self._logger.debug("Connecting to XNAT with config %s..." % config)
-        self.interface = pyxnat.Interface(config=config)
+        self.interface = pyxnat.Interface(**opts)
 
     def close(self):
         """Drops the XNAT connection."""
@@ -1233,8 +1225,8 @@ class XNAT(object):
                 file_obj.delete()
                 # XNAT 1.6 pyxnat ignores file delete.
                 if file_obj.exists():
-                    raise XNATError("XNAT upload force option is not supported,"
-                                    " since XNAT ignores file delete.")
+                    raise XNATError('XNAT upload force option is not supported,'
+                                    ' since XNAT ignores file delete.')
             else:
                 raise XNATError("The XNAT file object %s already exists in the"
                                 " %s resource" % (fname, resource.label()))
