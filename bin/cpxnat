@@ -7,7 +7,7 @@ import os
 import re
 import argparse
 from collections import defaultdict
-from qiutil.command import configure_log
+import qiutil
 import qixnat
 from qixnat import command
 from qixnat.helpers import path_hierarchy
@@ -28,7 +28,7 @@ def main(argv=sys.argv):
     # Extract the log options.
     # Configure the logger.
     log_opts = {k: opts.pop(k) for k in opts.keys() if k.startswith('log')}
-    configure_log('qicp', log_opts)
+    qiutil.command.configure_log('qixnat', log_opts)
 
     # Determine whether the copy is an upload or download.
     xnat_prefix = 'xnat:'
@@ -44,26 +44,36 @@ def main(argv=sys.argv):
     
     # Determine the sources and destination.
     if direction == 'up':
-        # Upload.
+        # Upload:
+        # Validate that only the target has a xnat: prefix.
         if any(prefixed[:-1]):
             raise ArgumentError("Upload sources cannot have a xnat: prefix")
         # The last path argument is the XNAT destination.
         # The remaining path arguments are the file sources. 
         sources = paths[:-1]
+        # The target XNAT path is the last path argument, with the
+        # leading xnat: prefix removed and the trailing slash removed,
+        # if necessary.
         dest = paths[-1][len(xnat_prefix):].rstrip('/')
-        # Remove the '/files' destination suffix, if necessary.
+        # Remove the XNAT path '/files' destination suffix, if necessary.
         if dest.endswith('/files'):
             dest = dest[:-len('/files')]
     else:
-        # Download.
+        # Download:
+        # Validate that only the sources have a xnat: prefix.
         if not all(prefixed[:-1]):
             raise ArgumentError("Download sources must have a xnat: prefix")
+        # The last argument can have a xnat: prefix, in which case the
+        # target location is the current directory. In that case, the
+        # paths with a xnat: prefix are all path arguments. Otherwise,
+        # the prefixed paths are all but the last path arguments.
         prefixed_paths = paths if prefixed[-1] else paths[:-1]
         # Remove each source leading prefix and trailing slash.
         source_args = [path[len(xnat_prefix):].rstrip('/')
                    for path in prefixed_paths]
         # Append a files suffix to the XNAT sources, if necessary.
-        fix = lambda s: s if re.search(r"/file(s|/\w+)$", s) else s + '/files' 
+        fix = lambda s: s if re.search(r"/file(s|/\w+)$", s) else s + '/files'
+        # The XNAT sources.
         sources = [fix(src) for src in source_args]
         # If the last path argument is an XNAT directory, then
         # the destination is the current directory, otherwise
@@ -75,13 +85,17 @@ def main(argv=sys.argv):
         if direction is 'up':
             # The path starts with /project/subject/experiment.
             prefix_types = ['project', 'subject', 'experiment']
+            # Infer the XNAT hierarchy from the target XNAT path.
             hierarchy = path_hierarchy(dest)
+            # The /project/subject/experiment prefix.
             prefix = hierarchy[:3]
+            # Validate that each prefix is of the correct type.
             if [pair[0] for pair in prefix] != prefix_types:
                 raise ArgumentError("Upload XNAT target must start with a"
                                     " /project/subject/session: %s" % dest)
-            # Get the session.
+            # Extract the prefix names.
             prj, sbj, sess = ((pair[1] for pair in prefix))
+            # Get the XNAT session.
             sess_obj = xnat.get_session(prj, sbj, sess)
             if not opts.get('modality') and not xnat.exists(sess_obj):
                 raise SessionNotFoundError("The --modality option is required"
