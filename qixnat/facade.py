@@ -20,10 +20,6 @@ class XNATError(Exception):
     pass
 
 
-class ChildNotFoundError(Exception):
-    pass
-
-
 class XNAT(object):
     """
     XNAT is a pyxnat facade convenience class. An XNAT instance is
@@ -186,7 +182,7 @@ class XNAT(object):
     def close(self):
         """Drops the XNAT connection."""
         self.interface.disconnect()
-        self._logger.debug("Closed the XNAT connection.")
+        self._logger.debug("Disconnected the XNAT client.")
 
     def exists(self, obj):
         """
@@ -230,9 +226,9 @@ class XNAT(object):
 
                 ['in_resources', 'out_resources']
 
-          but the remaining reconstructions return an empty list. This occurs
-          in the qiutil ``qils`` script *_collect_resources* method, but does
-          not occur in ipython.
+          but the remaining reconstructions return an empty list. This
+          occurs in the qiutil ``qils`` script *_collect_resources* method,
+          but does not occur in ipython.
 
           The work-around is to replace the pyxnat empty list by the
           children accessor methods defined for Scan and Reconstruction.
@@ -576,12 +572,12 @@ class XNAT(object):
             if ctr_type == 'scan':
                 rsc = self._infer_format(*in_files)
                 if not rsc:
-                    raise ValueError("XNAT %s %s %s upload can not infer the"
-                                     " scan resource from the options %s" %
-                                     (project, subject, experiment, opts))
+                    raise XNATError("XNAT %s %s %s upload can not infer the"
+                                    " scan resource from the options %s" %
+                                    (project, subject, experiment, opts))
             else:
-                raise ValueError("XNAT %s %s %s upload is missing the resource"
-                                 " name" % (project, subject, experiment))
+                raise XNATError("XNAT %s %s %s upload is missing the resource"
+                                " name" % (project, subject, experiment))
 
         # The XNAT resource parent container.
         rsc_obj = self.find(project, subject, experiment, create=True,
@@ -716,9 +712,9 @@ class XNAT(object):
                 # modality.
                 modality = opts.pop('modality', None)
                 if not modality:
-                    raise ValueError("The modality argument is missing to"
-                                     " create /%s/%s/%s" %
-                                     (project, subject, experiment))
+                    raise XNATError("The modality argument is missing to"
+                                    " create /%s/%s/%s" %
+                                    (project, subject, experiment))
                 std_modality = self._standardize_modality(modality)
                 # The odd way pyxnat specifies the modality is the
                 # experiments option.
@@ -741,8 +737,8 @@ class XNAT(object):
             # The XNAT insert *scans* keyword will be set
             # to the remaining scan attributes dictionary.
             if 'number' not in ctr_opts:
-                raise ValueError("The scan options must include the number:"
-                                 " %s" % ctr_opts)
+                raise XNATError("The scan options must include the number:"
+                                " %s" % ctr_opts)
             opts['scan'] = ctr_opts.pop('number')
             # description is an alias for series_description.
             desc = ctr_opts.pop('description', None)
@@ -760,7 +756,7 @@ class XNAT(object):
         if ctr_spec:
             ctr_type, ctr_id = ctr_spec
             if not ctr_id:
-                raise ValueError("XNAT %s %s %s %s object id is missing" %
+                raise XNATError("XNAT %s %s %s %s object id is missing" %
                                 (project, subject, experiment, ctr_type))
             ctr = self._resource_parent(exp, ctr_type, ctr_id)
             if not self.exists(ctr):
@@ -846,7 +842,7 @@ class XNAT(object):
 
         :param path: the path string
         :return: the XNAT child label list
-        :raise: ChildNotFoundError if there is no such child
+        :raise: XNATError if there is no such child
         """
         # The hierarchy list.
         hierarchy = path_hierarchy(path)
@@ -868,7 +864,7 @@ class XNAT(object):
         # Concatenate the children lists.
         children = reduce(lambda x, y: x + y, closures, [])
         if not children:
-            raise ChildNotFoundError("%s: No such XNAT object" % path)
+            raise XNATError("%s: No such XNAT object" % path)
 
         return children
 
@@ -1138,16 +1134,16 @@ class XNAT(object):
             elif inout in ['out', None]:
                 return parent.out_resources()
             else:
-                raise XNATError(
-                    "Unsupported resource inout option: %s" % inout)
+                raise XNATError("Unsupported resource inout option: %s" %
+                                inout)
         else:
             return parent.resources()
 
     def _is_inout_container(self, container):
         """
         :param obj: the XNAT container object
-        :return: whether the container resources are qualified as input or
-            output
+        :return: whether the container resources are qualified as input
+            or output
         """
         for ctr_type in INOUT_CONTAINER_TYPES:
             if isinstance(container, ctr_type):
@@ -1191,18 +1187,19 @@ class XNAT(object):
         """
         Uploads the given file to XNAT.
 
-        :param resource: the existing XNAT resource object that will contain
-          the file
+        :param resource: the existing XNAT resource object that will
+            contain the file
         :param in_file: the input file path
-        :param opts: the XNAT file options, as well as the following upload
-            options:
-        :keyword skip_existing: forego the upload if the target XNAT file
-             already exists (default False)
+        :param opts: the XNAT file options, as well as the following
+            upload options:
+        :keyword skip_existing: forego the upload if the target XNAT
+             file already exists (default False)
         :keyword force: replace an existing XNAT file (default False)
         :return: the XNAT file name
-        :raise XNATError: if both the *skip_existing* *force* options are set
-        :raise XNATError: if the XNAT file already exists and neither the
-          *skip_existing* nor the *force* option is set
+        :raise XNATError: if both the *skip_existing* *force* options
+            are set
+        :raise XNATError: if the XNAT file already exists and neither
+             the *skip_existing* nor the *force* option is set
         """
         # The XNAT file name.
         _, fname = os.path.split(in_file)
@@ -1234,8 +1231,9 @@ class XNAT(object):
         # Upload the file.
         rsc_ctr_type = rsc_ctr.__class__.__name__.lower()
         self._logger.debug("Inserting the XNAT file %s into the %s %s %s"
-                           " resource..." % (fname, rsc_ctr.label(),
-                                             rsc_ctr_type, resource.label()))
+                           " resource..." % (fname, rsc_ctr_type,
+                                             rsc_ctr.label(),
+                                             resource.label()))
         file_obj.insert(in_file, **opts)
         self._logger.debug("Uploaded the XNAT file %s." % fname)
 
