@@ -1,7 +1,6 @@
 """Command XNAT options."""
 
 import qiutil
-from qiutil import command
 from .helpers import path_hierarchy
 
 def add_options(parser):
