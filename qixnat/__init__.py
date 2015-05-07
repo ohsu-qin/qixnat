@@ -1,6 +1,6 @@
 from .connection import connect
 
-__version__ = '3.3.4'
+__version__ = '3.4.1'
 """
 The one-based major.minor.patch version based on the
 `Fast and Loose Versioning <https://gist.github.com/FredLoney/6d946112e0b0f2fc4b57>`_

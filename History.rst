@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+3.4.1 / 2015-05-06
+------------------
+* Make a default cache directory.
+
 3.3.4 / 2015-05-05
 ------------------
 * Update qiutil version.
