@@ -5,7 +5,6 @@ Lists XNAT objects.
 import sys
 import os
 import argparse
-from qiutil.command import configure_log
 import qixnat
 from qixnat import command
 from qixnat.helpers import xnat_path
@@ -17,7 +16,7 @@ def main(argv=sys.argv):
     # The XNAT configuration.
     config = opts.pop('config', None)
     # Configure the logger.
-    configure_log('qixnat', opts)
+    command.configure_log(**opts)
 
     # Print the XNAT object names specified by the path. 
     with qixnat.connect(config) as xnat:

@@ -6,7 +6,6 @@ import sys
 import os
 import re
 import argparse
-from qiutil.command import configure_log
 import qixnat
 from qixnat import command
 
@@ -20,7 +19,7 @@ def main(argv=sys.argv):
     # The XNAT configuration.
     config = opts.pop('config', None)
     # Configure the logger.
-    configure_log('qixnat', opts)
+    command.configure_log(**opts)
     
     # Validate that file objects are not specified, since
     # pyxnat file object delete is a no-op.

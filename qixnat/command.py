@@ -13,10 +13,11 @@ def add_options(parser):
     # The logging options.
     qiutil.command.add_options(parser)
 
-    # The XNAT project.
-    parser.add_argument('-p', '--project',
-                        help="the XNAT project (default is 'QIN')")
-
     # The XNAT configuration.
     parser.add_argument('-c', '--config', help='the XNAT configuration file',
                         metavar='FILE')
+
+
+def configure_log(**opts):
+    # Configure the logger for this qixnat module and the qiutil module.
+    qiutil.command.configure_log('qixnat', 'qiutil', **opts)

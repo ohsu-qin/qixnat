@@ -7,7 +7,6 @@ import os
 import re
 import argparse
 from collections import defaultdict
-import qiutil
 import qixnat
 from qixnat import command
 from qixnat.helpers import path_hierarchy
@@ -25,10 +24,8 @@ def main(argv=sys.argv):
     paths, opts = _parse_arguments()
     # The XNAT configuration.
     config = opts.pop('config', None)
-    # Extract the log options.
     # Configure the logger.
-    log_opts = {k: opts.pop(k) for k in opts.keys() if k.startswith('log')}
-    qiutil.command.configure_log('qixnat', log_opts)
+    command.configure_log(**opts)
 
     # Determine whether the copy is an upload or download.
     xnat_prefix = 'xnat:'
