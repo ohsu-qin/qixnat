@@ -868,12 +868,11 @@ class XNAT(object):
 
         return children
 
-
     def _expand_child_hierarchy(self, parent, hierarchy):
         """
         Returns the XNAT object children in the given hierarchy.
-        The *hierarchy* consists of child path components as described in
-        the :meth:`path_hierarchy` result.
+        The *hierarchy* consists of child path components as described
+        in the :meth:`path_hierarchy` result.
 
         :param parent: the parent XNAT object
         :param hierarchy: the child hierarchy
