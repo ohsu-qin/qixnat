@@ -127,7 +127,7 @@ def path_hierarchy(path):
     items = relpath.split('/')
 
     # If the path starts with a '/', then the first three items are
-    # /project/subject/session, and can elide the object type.
+    # /project/subject/experiment, and can elide the object type.
     if path.startswith('/'):
         prefix = []
         # Walk through the first three object specifications
