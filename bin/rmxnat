@@ -9,6 +9,7 @@ import argparse
 import qixnat
 from qixnat import command
 
+
 class UnsupportedError(Exception):
     pass
 

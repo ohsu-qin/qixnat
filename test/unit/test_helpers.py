@@ -1,6 +1,7 @@
 from nose.tools import (assert_equal, assert_true, assert_is_not_none)
 from qixnat.helpers import (hierarchical_label, path_hierarchy)
 
+
 class TestHelpers(object):
     def test_short_hierarchical_label(self):
         sess = 'Session01'

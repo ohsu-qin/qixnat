@@ -7,6 +7,7 @@ from .facade import XNAT
 from . import configuration 
 from qiutil.logging import logger
 
+
 class ConnectError(Exception):
     pass
 

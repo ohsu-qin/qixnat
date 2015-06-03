@@ -1,7 +1,11 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
-3.4.3 / 2015-05-07
+3.4.3 / 2015-06-03
+------------------
+* PEP8 newlines.
+
+3.4.2 / 2015-05-07
 ------------------
 * Use new logging interface.
 
