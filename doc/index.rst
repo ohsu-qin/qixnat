@@ -11,7 +11,7 @@ qixnat provides a XNAT_ facade.
 
 :API: http://qixnat.readthedocs.org/en/latest/api/index.html
 
-:Git: github.com/ohsu-qin/qixnat
+:Git: https://github.com/ohsu-qin/qixnat
 
 
 ************
@@ -114,9 +114,6 @@ to GitHub. Documentation can be generated locally as follows:
 ---------
 
 .. container:: copyright
-
-  Copyright (C) 2014 Oregon Health & Science University `Knight Cancer Institute`_.
-  See the license_ for permissions.
 
 
 .. Targets:
