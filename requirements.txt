@@ -1,4 +1,4 @@
 httplib2==0.9
 lxml==3.4.0
 pyxnat==0.9.5.2
-qiutil==2.2.5
+qiutil==2.2.6
