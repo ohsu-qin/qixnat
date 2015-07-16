@@ -1,9 +1,12 @@
 import os
 import shutil
-from nose.tools import (assert_equal, assert_true, assert_is_not_none)
+from datetime import datetime
+from nose.tools import (assert_equal, assert_true, assert_false,
+                        assert_is_none, assert_is_not_none)
 from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Resource, Assessor)
 import qixnat
+from qixnat.helpers import parse_rest_date
 from test import (PROJECT, ROOT)
 from ..helpers.logging import logger
 from ..helpers.name_generator import generate_unique_name
@@ -17,16 +20,20 @@ RESULTS = os.path.join(ROOT, 'results', 'xnat')
 SUBJECT = generate_unique_name(__name__)
 """The test subject name."""
 
-SESSION = 'MR1'
+SESSION = generate_unique_name(__name__)
+"""The test session name."""
 
 SCAN = 1
-
-RECONSTRUCTION = 'reco'
+"""The test scan number."""
 
 REGISTRATION = 'reg'
+"""The test scan registration resource name."""
+
+RECONSTRUCTION = 'reco'
+"""The test reconstruction name."""
 
 ASSESSOR = 'pk'
-
+"""The test assessor name."""
 
 class TestFacade(object):
     """The XNAT helper unit tests."""
@@ -34,162 +41,158 @@ class TestFacade(object):
     def setUp(self):
         shutil.rmtree(RESULTS, True)
         with qixnat.connect() as xnat:
-            xnat.delete_subjects(PROJECT, SUBJECT)
+            xnat.delete(PROJECT, SUBJECT)
 
     def tearDown(self):
         shutil.rmtree(RESULTS, True)
         with qixnat.connect() as xnat:
-            xnat.delete_subjects(PROJECT, SUBJECT)
+            xnat.delete(PROJECT, SUBJECT)
 
-    def test_find_subject(self):
+    def test_project(self):
         with qixnat.connect() as xnat:
-            sbj = xnat.find(PROJECT, SUBJECT, modality='MR', create=True)
-            assert_true(xnat.exists(sbj), "Subject not created: %s" % SUBJECT)
-            sbj = xnat.find(PROJECT, SUBJECT)
-            assert_is_not_none(sbj, "Subject not found: %s" % SUBJECT)
+            prj = xnat.find_one(PROJECT)
+            assert_is_not_none(prj, "XNAT project was not fetched: %s" % prj)
     
-    def test_find_experiment(self):
+    def test_subject(self):
         with qixnat.connect() as xnat:
-            sbj = xnat.find(PROJECT, SUBJECT, SESSION, modality='MR',
-                            create=True)
-            assert_true(xnat.exists(sbj),
-                        "Subject %s session not created: %s" %
-                        (SUBJECT, SESSION))
-            sbj = xnat.find(PROJECT, SUBJECT, SESSION)
-            assert_is_not_none(sbj, "Subject %s session not found: %s" %
-                                    (SUBJECT, SESSION))
+            self._validate_fetch(xnat, PROJECT, SUBJECT)
     
-    def test_find_scan(self):
+    def test_experiment(self):
+        date = datetime(2014, 9, 3)
+        exp_opt = (SESSION, dict(date=date))
         with qixnat.connect() as xnat:
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN,
-                             modality='MR', create=True)
-            assert_true(xnat.exists(scan),
-                        "Subject %s session %s scan not created: %s" %
-                        (SUBJECT, SESSION, SCAN))
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN)
-            assert_is_not_none(scan, "Subject %s session %s scan not found:"
-                                     " %s" % (SUBJECT, SESSION, SCAN))
+            exp = self._validate_fetch(xnat, PROJECT, SUBJECT, exp_opt)
+            self._validate_experiment_date(exp, date)
     
-    def test_create_scan_with_description(self):
+    def test_scan(self):
+        scan_opt = (SCAN, dict(series_description='T1'))
         with qixnat.connect() as xnat:
-            scan_opts = dict(number=SCAN, description='T1')
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=scan_opts,
-                             modality='MR', create=True)
-            assert_true(xnat.exists(scan), "Subject %s session %s scan not"
-                                           " created: %s" %
-                                           (SUBJECT, SESSION, SCAN))
-            scan = xnat.find(PROJECT, SUBJECT, SESSION, scan=SCAN)
-            assert_is_not_none(scan, "Subject %s session %s scan not found:"
-                                     " %s" % (SUBJECT, SESSION, SCAN))
-            assert_equal(scan.attrs.get('series_description'), 'T1',
-                        "Subject %s session %s scan %d description is"
-                        " incorrect" % (SUBJECT, SESSION, SCAN))
+            scan = self._validate_fetch(xnat, PROJECT, SUBJECT, SESSION,
+                                        scan=scan_opt)
+            actual_desc = scan.attrs.get('series_description')
+            assert_is_not_none(actual_desc, "Scan description is not set")
+            assert_equal(actual_desc, 'T1',
+                         "Scan description is incorrect: %s" % actual_desc)
     
-    def test_find_resource(self):
+    def test_scan_resource(self):
+        """This test case also tests creation of ancestor objects."""
+        date = datetime(2014, 4, 9)
+        exp_opt = (SESSION, dict(date=date))
+        scan_opt = (SCAN, dict(series_description='T1'))
         with qixnat.connect() as xnat:
-            rsc = xnat.find(PROJECT, SUBJECT, SESSION, resource=REGISTRATION,
-                            modality='MR', create=True)
-            assert_true(xnat.exists(rsc),
-                        "Subject %s session %s resource not created: %s" %
-                        (SUBJECT, SESSION, REGISTRATION))
-            assert_true(isinstance(rsc, Resource),
-                        "Subject %s session %s resource %s class incorrect:"
-                        " %s" % (SUBJECT, SESSION, REGISTRATION,
-                                 rsc.__class__.__name__))
-            rsc = xnat.find(PROJECT, SUBJECT, SESSION, resource=REGISTRATION)
-            assert_is_not_none(rsc, "Subject %s session %s resource not"
-                                    " found: %s" %
-                                    (SUBJECT, SESSION, REGISTRATION))
+            rsc = self._validate_fetch(xnat, PROJECT, SUBJECT, exp_opt,
+                                       scan=SCAN, resource=REGISTRATION)
+            scan = rsc.parent()
+            assert_is_not_none(scan, "Resource scan is not found")
+            actual_desc = scan.attrs.get('series_description')
+            exp = scan.parent()
+            assert_is_not_none(exp, "Resource experiment is not found")
+            self._validate_experiment_date(exp, date)
     
-    def test_find_reconstruction(self):
+    def test_reconstruction(self):
         with qixnat.connect() as xnat:
-            reco = xnat.find(PROJECT, SUBJECT, SESSION,
-                            reconstruction=RECONSTRUCTION, modality='MR',
-                            create=True)
-            assert_true(xnat.exists(reco),
-                        "Subject %s session %s reconstruction not created:"
-                        " %s" % (SUBJECT, SESSION, RECONSTRUCTION))
-            reco = xnat.find(PROJECT, SUBJECT, SESSION,
-                             reconstruction=RECONSTRUCTION, modality='MR',
-                             create=True)
-            assert_is_not_none(reco, "Subject %s session %s reconstruction"
-                                     " not found: %s" %
-                                     (SUBJECT, SESSION, RECONSTRUCTION))
+            self._validate_fetch(xnat, PROJECT, SUBJECT, SESSION,
+                                 reconstruction=RECONSTRUCTION)
     
-    def test_find_assessor(self):
+    def test_assessor(self):
         with qixnat.connect() as xnat:
-            anl = xnat.find(PROJECT, SUBJECT, SESSION, assessor=ASSESSOR,
-                            modality='MR', create=True)
-            assert_true(xnat.exists(anl),
-                        "Subject %s session %s assessor not created: %s" %
-                        (SUBJECT, SESSION, ASSESSOR))
-            anl = xnat.find(PROJECT, SUBJECT, SESSION, assessor=ASSESSOR)
-            assert_is_not_none(anl, "Subject %s session %s assessor not"
-                                    " found: %s" %
-                                    (SUBJECT, SESSION, ASSESSOR))
+            self._validate_fetch(xnat, PROJECT, SUBJECT, SESSION,
+                                 assessor=ASSESSOR)
     
-    
-    def test_scan_round_trip(self):
+    def test_file_round_trip(self):
+        # The test file name without the directory.
+        _, fname = os.path.split(FIXTURE)
         with qixnat.connect() as xnat:
+            # Make the resource.
+            rsc = xnat.find_or_create(PROJECT, SUBJECT, SESSION,
+                                      scan=SCAN, resource='NIFTI',
+                                      modality='MR')
             # Upload the file.
-            xnat.upload(PROJECT, SUBJECT, SESSION, FIXTURE, scan=SCAN,
-                        modality='MR')
-            _, fname = os.path.split(FIXTURE)
-            exp = xnat.get_session(PROJECT, SUBJECT, SESSION)
-            assert_true(xnat.exists(exp),
-                        "XNAT %s %s %s experiment does not exist." %
-                        (PROJECT, SUBJECT, SESSION))
-            scan_obj = xnat.get_scan(PROJECT, SUBJECT, SESSION, SCAN)
-            assert_true(xnat.exists(scan_obj),
-                        "XNAT %s %s %s %s scan does not exist." %
-                        (PROJECT, SUBJECT, SESSION, SCAN))
-            file_obj = scan_obj.resource('NIFTI').file(fname)
-            assert_true(xnat.exists(file_obj), "File not uploaded: %s" % fname)
-    
-            # Download the single uploaded file.
-            files = xnat.download(PROJECT, SUBJECT, SESSION, dest=RESULTS,
-                                  scan=SCAN)
-            # Download all scan files.
-            all_files = xnat.download(PROJECT, SUBJECT, SESSION, dest=RESULTS,
-                                      container_type='scan', force=True)
-    
-        # Verify the result.
-        assert_equal(len(files), 1,
-                     "The download file count is incorrect: %d" % len(files))
-        f = files[0]
-        assert_true(os.path.exists(f), "File not downloaded: %s" % f)
-        assert_equal(set(files), set(all_files),
-                     "The %s %s scan %d download differs from all scans"
-                     " download: %s vs %s" %
-                     (SUBJECT, SESSION, SCAN, files, all_files))
-    
-    def test_registration_round_trip(self):
-        with qixnat.connect() as xnat:
-            # Upload the file.
-            xnat.upload(PROJECT, SUBJECT, SESSION, FIXTURE, scan=SCAN,
-                        resource=REGISTRATION, modality='MR')
-            _, fname = os.path.split(FIXTURE)
-            exp = xnat.get_session(PROJECT, SUBJECT, SESSION)
-            assert_true(xnat.exists(exp),
-                        "The XNAT %s %s %s experiment does not exist." %
-                        (PROJECT, SUBJECT, SESSION))
-            rsc_obj = xnat.get_scan_resource(PROJECT, SUBJECT, SESSION,
-                                             SCAN, REGISTRATION)
-            assert_true(xnat.exists(rsc_obj),
-                        "The XNAT %s %s %s scan %d %s resource does not exist." %
-                        (PROJECT, SUBJECT, SESSION, SCAN, REGISTRATION))
-            file_obj = rsc_obj.file(fname)
-            assert_true(xnat.exists(file_obj), "File not uploaded: %s" % fname)
-    
+            xnat.upload(rsc, FIXTURE)
+            # The XNAT file object.
+            obj = xnat.find_one(PROJECT, SUBJECT, SESSION, scan=SCAN,
+                           resource='NIFTI', file=fname)
+            assert_is_not_none(obj, "XNAT %s %s file object not found" %
+                                    (rsc, fname))
             # Download the uploaded file.
             files = xnat.download(PROJECT, SUBJECT, SESSION, scan=SCAN,
-                                  resource=REGISTRATION, dest=RESULTS)
-    
-        # Verify the result.
+                                  dest=RESULTS)
+        # Verify the download.
         assert_equal(len(files), 1,
                      "The download file count is incorrect: %d" % len(files))
-        f = files[0]
-        assert_true(os.path.exists(f), "File not downloaded: %s" % f)
+        location = files[0]
+        assert_true(os.path.exists(location), "File not downloaded: %s" %
+                                              location)
+    
+    def test_find(self):
+        with qixnat.connect() as xnat:
+            # Make some experiments and resources.
+            x11 = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
+                                resource='DICOM', modality='MR')
+            xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
+                                resource='NIFTI')
+            x12 = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=2,
+                                resource='NIFTI', modality='MR')
+            x21 = xnat.find_or_create(PROJECT, SUBJECT, 'Session02', scan=1,
+                                resource='NIFTI', modality='MR')
+            # Find the NIFTI resources.
+            result = xnat.find(PROJECT, '*', 'Session*', scan='*',
+                               resource='NIFTI')
+            assert_equal(len(result), 3, "Find existing result is"
+                                         " incorrect: %s" % result)
+            # Find non-existing resources.
+            result = xnat.find(PROJECT, SUBJECT, 'Session*', scan=2,
+                               resource='DICOM')
+            assert_equal(len(result), 0, "Find non-existing result is"
+                                         " not empty: %s" % result)
+    
+    def test_delete(self):
+        with qixnat.connect() as xnat:
+            # Make a resource.
+            rsc = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
+                                resource='DICOM', modality='MR')
+            # Delete the resource.
+            xnat.delete(PROJECT, SUBJECT, 'Session*', scan=1)
+            assert_false(rsc.exists(), "%s was not deleted." % rsc)
+
+    def _validate_experiment_date(self, exp, date):
+        actual_date_s = exp.attrs.get('date')
+        actual_date = parse_rest_date(actual_date_s)
+        assert_is_not_none(actual_date, "Session date is not set")
+        assert_equal(actual_date, date, "Session date is incorrect: %s" %
+                                        actual_date)
+
+    def _validate_fetch(self, xnat, *args, **opts):
+        """
+        Tests fetching an XNAT object with the given arguments and
+        options. The following operations are tested:
+        - :meth:`qixnat.facade.XNAT.get`
+        - :meth:`qixnat.facade.XNAT.find_one`
+        - :meth:`qixnat.facade.XNAT.find_or_create`
+        
+        :param xnat: the qixnat connection
+        :param args: the :class:`qixnat.facade.XNAT` operation
+            positional arguments
+        :param opts: the :class:`qixnat.facade.XNAT` operation
+            keyword options
+        :return: the created XNAT object
+        """
+        # Cheat by piggy-backing off of a facade private method.
+        find_args = [xnat._extract_search_key(arg) for arg in args]
+        find_opts = {k: xnat._extract_search_key(v) for k, v in opts.iteritems()}
+        obj = xnat.object(*find_args, **find_opts)
+        assert_false(xnat.exists(obj), "XNAT object inadvertently"
+                                       " created: %s" % obj)
+        fetched = xnat.find_one(*find_args, **find_opts)
+        assert_is_none(fetched, "Found non-existing XNAT object %s:" % obj)
+        fetched = xnat.find_or_create(*args, modality='MR', **opts)
+        assert_is_not_none(fetched, "No create return value")
+        assert_true(xnat.exists(fetched), "XNAT object not created: %s" %
+                                      obj)
+        fetched = xnat.find_one(*find_args, **find_opts)
+        assert_is_not_none(fetched, "XNAT object not found: %s" % obj)
+
+        return obj
 
 
 if __name__ == "__main__":

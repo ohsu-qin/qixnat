@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.1 / 2015-07-16
+------------------
+* Refactor find and add delete.
+
 3.4.3 / 2015-06-03
 ------------------
 * PEP8 newlines.

@@ -2,27 +2,27 @@
 .. module:: helpers
     :synopsis: XNAT utility functions.
 """
-
 import os
 import re
+from datetime import datetime
 from qiutil.logging import logger
-try:
-    from pyxnat.core.resources import Reconstruction
-    from .constants import (XNAT_TYPES, UNLABELED_XNAT_TYPES, ASSESSOR_SYNONYMS)
-except ImportError:
-    # Ignore pyxnat import failure to allow ReadTheDocs auto-builds.
-    # See the installation instructions for why auto-build fails.
+from .constants import (XNAT_TYPES, UNLABELED_TYPES, ASSESSOR_SYNONYMS,
+                        MODALITY_TYPES, DATE_FMT)
+
+
+class ParseError(Exception):
     pass
+
 
 def xnat_path(obj):
     """
-    Returns the XNAT object path consisting of the :meth:`xnat_name`
+    Returns the XNAT object path consisting of the :meth:`xnat_key`
     path components.
 
     :param obj: the XNAT object
     :return: the XNAT path
     """
-    name = xnat_name(obj)
+    name = xnat_key(obj)
     parent = obj.parent()
     if parent:
         return '/'.join((xnat_path(parent), name))
@@ -30,23 +30,34 @@ def xnat_path(obj):
         return '/' + name
 
 
-def xnat_name(obj):
+def xnat_key(obj):
     """
-    Returns the XNAT object name as follows:
+    Returns the XNAT object key unique within the parent scope,
+    determined as follows:
     * If the object is a Reconstruction, then the XNAT id
     * Otherwise, the XNAT label
 
     :param obj: the XNAT object
     :return: the XNAT label or id
     """
-    unlabeled = any((isinstance(obj, t) for t in UNLABELED_XNAT_TYPES))
-    return obj.id() if unlabeled else obj.label()
+    type_name = obj.__class__.__name__.lower()
+
+    return obj.id() if type_name in UNLABELED_TYPES else obj.label()
+
+
+def pluralize_type_name(name):
+    """
+    :param name: the XNAT type name
+    :return: the pluralized type name
+    """
+    # As it happens, the pluralization of every XNAT name is trivial.
+    return name + 's'
 
 
 def hierarchical_label(*names):
     """
-    Returns the XNAT label for the given hierarchical name, qualified by
-    a prefix if necessary.
+    Returns the XNAT label for the given hierarchical name, qualified
+    by a prefix if necessary.
 
     Example:
 
@@ -55,6 +66,8 @@ def hierarchical_label(*names):
     'Breast003_Session01'
     >>> hierarchical_label('Breast003', 'Breast003_Session01')
     'Breast003_Session01'
+    >>> hierarchical_label(3)   # for scan number 3
+    3
 
     :param names: the object names
     :return: the corresponding XNAT label
@@ -74,15 +87,68 @@ def hierarchical_label(*names):
         return last
 
 
+def rest_type(type_name, modality=None):
+    """
+    Qualifies the given type name with the modality, e.g.:
+
+    >>> from qixnat.helpers import rest_type
+    >>> rest_type('experiment', 'MR')
+    'xnat:mrSessionData'
+
+    :param type_name: the XNAT type name
+    :param modality: the case-insensitive modality, e.g. ``MR`` or ``CT``
+    :return: the full XNAT subtype designation
+    :raise XNATError: if the type name is in
+        :const:`qixnat.constants.MODALITY_TYPES`
+        but modality is None
+    """
+    # XNAT subtypes an Experiment as Session.
+    rest_name = 'session' if type_name == 'experiment' else type_name
+    if type_name in MODALITY_TYPES:
+        if type_name in MODALITY_TYPES:
+            if not modality:
+                raise ParseError("Modality is required to create a XNAT"
+                                " %s" % type_name)
+        return "xnat:%s%sData" % (modality.lower(), rest_name.capitalize())
+    else:
+        return "xnat:%sData" % rest_name
+
+
+def rest_date(value):
+    """
+    :param value: the input ``datetime`` object or None
+    :return: None, if the input is None, otherwise the input formatted
+        as a string using the :const:`qixnat.constants.DATE_FMT`
+    :rtype: str
+    """
+    return value.strftime(DATE_FMT) if value else None
+
+
+def parse_rest_date(value):
+    """
+    :param value: the input string in :const:`qixnat.constants.DATE_FMT`
+        format or None
+    :return: None, if the input is None, otherwise the input parsed
+        as a datetime object
+    :rtype: datetime.datetime
+    """
+    return datetime.strptime(value, DATE_FMT) if value else None
+
+
 def path_hierarchy(path):
     """
-    Transforms the given XNAT path into a list of *(type, value)* tuples.
+    Transforms the given XNAT path into a list of *(type, value)*
+    tuples.
 
-    The *path* string argument must consist of a sequence of slash-delimited
-    XNAT object specifications, where each specification is either a singular
-    XNAT type and value, e.g. 'subject/Breast003', or a pluralized XNAT type,
-    e.g. 'resources'. If the path starts with a forward slash, then the first
-    three components can elide the XNAT type. Thus, the following are
+    The *path* string argument must consist of a sequence of
+    slash-delimited XNAT object specifications, where each specification
+    is either a singular XNAT type and value, e.g. ``subject/Breast003``,
+    or a pluralized XNAT type, e.g. ``resources``.
+    
+    The path can include wildcards, e.g. ``/project/QIN/subject/Breast*``.
+    
+    If the path starts with a forward slash, then the first three
+    components can elide the XNAT type. Thus, the following are
     equivalent::
 
           path_hierarchy('/project/QIN/subject/Breast003/experiment/Session02')
@@ -91,21 +157,22 @@ def path_hierarchy(path):
     The following XNAT object type synonyms are allowed:
     * ``session`` => ``experiment``
     * ``analysis`` or ``assessment`` => ``assessor``
-    Pluralized type synonyms are standardized according to the singular form,
-    e.g. ``analyses`` => ``assessors``.
+    Pluralized type synonyms are standardized according to the singular
+    form, e.g. ``analyses`` => ``assessors``.
 
-    The path hierarchy is a list of *(type, value)* tuples. A pluralization
-    value is a wild card.
+    The path hierarchy result is a list of *(type, value)* tuples. A
+    pluralization value is a wild card.
 
     Examples:
 
     >>> from qixnat.helpers import path_hierarchy
-    >>> path = 'session/Session03/resource/reg_Qzu7R/files'
-    >>> path_hierarchy(path)
-    [('experiment', 'Session03'), ('resource', 'reg_Qzu7R'), ('files', '*')]
-    >>> path = '/project/QIN/subject/Breast*/session/*/resources'
-    >>> path_hierarchy(path)
-    [('project', 'QIN'), ('subjects', 'Breast*'), ('experiments', '*'), ('resources', '*')]
+    >>> path_hierarchy('/QIN/Breast003/Session03/resource/reg_Qzu7R/files')
+    [('project', 'QIN'), ('subject', 'Breast*'), ('project', 'QIN'),
+     ('subject', 'Breast*'), ('experiment', 'Session03'),
+     ('resource', 'reg_Qzu7R'), ('file', '*')]
+    >>> path_hierarchy('/QIN/Breast*/*/resources')
+    [('project', 'QIN'), ('subjects, 'Breast*'), ('experiments, '*'),
+     ('resource', '*')]
 
     :param path: the XNAT object path string or list
     :return: the path hierarchy list
@@ -160,38 +227,23 @@ def path_hierarchy(path):
         items.append('*')
 
     # Partition the items into (type, value) pairs.
-    return [_standardize_attribute_value(items[i], items[i+1])
+    return [(_standardize_attribute(items[i]), items[i+1])
             for i in range(0, len(items), 2)]
-
-
-def _standardize_attribute_value(name, value):
-    """
-    Returns the standardized XNAT (attribute, value) pair for the
-    given attribute name and value.
-
-    :param name: the attribute name
-    :param value: the attribute value
-    :return: the standardized XNAT (attribute, value) pair
-    """
-    attr = _standardize_attribute(name)
-    # If the value is a wild card, then pluralize the attribute.
-    if isinstance(value, str) and '*' in value:
-        attr = attr + 's'
-    
-    return (attr, value)
 
 
 def _standardize_attribute(name):
     """
     Returns the standardized XNAT attribute for the given name, with
     the following substitutions:
-    * session => experiment
-    * analysis or assessment => assessor
+    * ``session`` => ``experiment``
+    * ``analysis`` or ``assessment`` => ``assessor``
     * pluralizations => the singular standardization, e.g.
-      analyses => assessor
+      ``analyses`` => ``assessor``
 
     :param name: the attribute name
     :return: the standardized XNAT attribute
+    :raise ParseError: if the name is not recognized as an attribute
+        designator
     """
     if name in XNAT_TYPES:
         return name
@@ -204,5 +256,5 @@ def _standardize_attribute(name):
     elif name.endswith('s'):
         return _standardize_attribute(name[:-1])
     else:
-        raise ValueError("The XNAT path item %s is not recognized as an"
+        raise ParseError("The XNAT path item %s is not recognized as an"
                          " XNAT object type" % name)
