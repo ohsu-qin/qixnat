@@ -36,47 +36,65 @@ def connect(config=None, **opts):
     this method sets the *cachedir* option to a new temp directory.
     When the connection is closed, this directory is deleted.
     
-    :Note: It is recommended, but not required, that the caller
-        not set the *cachedir* option. This practice ensures
-        cache consistency in a cluster environment, as described
-        below. This differs from the standard pyxnat configuration
-        file. pyxnat load of a configuration file without a
-        *cachedir* option results in an error. By contrast,
-        qixnat load of a configuration file without a *cachedir*
-        option results in more reliable pyxnat behavior in a
-        cluster environment.
-    
     :Note: If a shared *cachedir* is used in a cluster environment,
         then concurrency cache conflicts can arise because the
-        pyxnat cache is non-reentrant and unsynchronized.
+        pyxnat cache is non-reentrant and unsynchronized (cf.
+        the :meth:`qixnat.facade.find` Note).
+
+        It is recommended, but not required, that the caller
+        not set the *cachedir* option. This practice ensures
+        cache consistency in a cluster environment.
+        
+        This practice differs from the standard ``pyxnat``
+        configuration file. ``pyxnat`` load of a configuration file
+        without a *cachedir* option results in an error. By contrast,
+        ``qixnat`` load of a configuration file without a *cachedir*
+        option results in more reliable pyxnat behavior in a cluster
+        environment.
 
     Example:
 
-    >>> from qiutil import qixnat
+    >>> import qixnat
     >>> with qixnat.connect() as xnat:
-    ...    sbj = xnat.get_subject('QIN', 'Breast003')
+    ...    subject = xnat.find_one('QIN', 'Breast003')
 
-    :param config: the XNAT configuration file
+    :param config: the XNAT configuration file, or None
+        for the :meth:`qixnat.configuration.load` default
     :param opts: the :class:`qixnat.facade.XNAT`
         initialization options
     :yield: the XNAT instance
     """
+    # The *connect_cnt* function variable holds the active
+    # connection context reference count.
     if not hasattr(connect, 'connect_cnt'):
         # The connection count.
         connect.connect_cnt = 0
         # The connection cache directory.
         connect.cachedir = None
+    # If there no active connections, then do a real XNAT connect.
     if not connect.connect_cnt:
         _connect(config, **opts)
+    # Increment the connect reference counter.
     connect.connect_cnt += 1
+    # Pass back the XNAT facade in an execution context with clean-up.
     try:
         yield connect.xnat
     finally:
+        # Decrement the connection counter.
         connect.connect_cnt -= 1
+        # If there are no more active connections, then disconnect.
         if not connect.connect_cnt:
             _disconnect()
 
 def _connect(config=None, **opts):
+    """
+    Opens a XNAT connection.
+
+    :param config: the XNAT configuration file, or None
+        for the :meth:`qixnat.configuration.load` default
+    :param opts: the :class:`qixnat.facade.XNAT`
+        initialization options
+    """
     # Load the configuration file or default.
     opts.update(configuration.load(config))
 
@@ -94,6 +112,9 @@ def _connect(config=None, **opts):
 
 
 def _disconnect():
+    """
+    Closes the xnat connection and deletes the cache directory.
+    """
     connect.xnat.close()
     cachedir = connect.cachedir
     # If this connection created a cache directory, then delete it.
