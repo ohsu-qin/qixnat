@@ -31,7 +31,7 @@ def main(argv=sys.argv):
     
     # Delete each specified XNAT object.
     with qixnat.connect(config) as xnat:
-        obj_lists = [xnat.expand_path(path) for path in paths]
+        obj_lists = [xnat.find_path(path) for path in paths]
         objs = reduce(lambda x,y: x + y, obj_lists)
         for obj in objs:
             obj.delete()    

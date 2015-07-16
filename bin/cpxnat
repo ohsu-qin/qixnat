@@ -7,16 +7,13 @@ import os
 import re
 import argparse
 from collections import defaultdict
+from qiutil.collections import concat
 import qixnat
 from qixnat import command
 from qixnat.helpers import path_hierarchy
 
 
 class ArgumentError(Exception):
-    pass
-
-
-class SessionNotFoundError(Exception):
     pass
 
 
@@ -51,11 +48,8 @@ def main(argv=sys.argv):
         sources = paths[:-1]
         # The target XNAT path is the last path argument, with the
         # leading xnat: prefix removed and the trailing slash removed,
-        # if necessary.
+        # if any.
         dest = paths[-1][len(xnat_prefix):].rstrip('/')
-        # Remove the XNAT path '/files' destination suffix, if necessary.
-        if dest.endswith('/files'):
-            dest = dest[:-len('/files')]
     else:
         # Download:
         # Validate that only the sources have a xnat: prefix.
@@ -67,12 +61,8 @@ def main(argv=sys.argv):
         # the prefixed paths are all but the last path arguments.
         prefixed_paths = paths if prefixed[-1] else paths[:-1]
         # Remove each source leading prefix and trailing slash.
-        source_args = [path[len(xnat_prefix):].rstrip('/')
+        sources = [path[len(xnat_prefix):].rstrip('/')
                    for path in prefixed_paths]
-        # Append a files suffix to the XNAT sources, if necessary.
-        fix = lambda s: s if re.search(r"/file(s|/\w+)$", s) else s + '/files'
-        # The XNAT sources.
-        sources = [fix(src) for src in source_args]
         # If the last path argument is an XNAT directory, then
         # the destination is the current directory, otherwise
         # the destination is the last path argument.
@@ -81,37 +71,62 @@ def main(argv=sys.argv):
     # Copy the files.
     with qixnat.connect(config) as xnat:
         if direction is 'up':
-            # The path starts with /project/subject/experiment.
-            prefix_types = ['project', 'subject', 'experiment']
             # Infer the XNAT hierarchy from the target XNAT path.
             hierarchy = path_hierarchy(dest)
-            # The /project/subject/experiment prefix.
-            prefix = hierarchy[:3]
-            # Validate that each prefix is of the correct type.
-            if [pair[0] for pair in prefix] != prefix_types:
-                raise ArgumentError("Upload XNAT target must start with a"
-                                    " /project/subject/session: %s" % dest)
-            # Extract the prefix names.
-            prj, sbj, sess = ((pair[1] for pair in prefix))
-            # Get the XNAT session.
-            sess_obj = xnat.get_session(prj, sbj, sess)
-            if not opts.get('modality') and not xnat.exists(sess_obj):
-                raise SessionNotFoundError("The --modality option is required"
-                                           " to create the XNAT session: %s %s"
-                                           " %s" % (prj, sbj, sess))
-            # The remaining (type, value) pairs.
-            upload_opts = dict(hierarchy[3:])
-            # Add in the general command options, e.g. force.
-            upload_opts.update(opts)
+            # The find options.
+            find_opts = dict(hierarchy)
+            modality = opts.pop('modality', None)
+            if modality:
+                find_opts['modality'] = modality
+            # The target resource object.
+            rsc = xnat.find_or_create(**find_opts)
             # Upload the files.
-            xnat.upload(prj, sbj, sess, *sources, **upload_opts)
+            xnat.upload(rsc, *sources, **opts)
+            
+            
+            # # The path starts with /project/subject/experiment.
+            # prefix_types = ['project', 'subject', 'experiment']
+            # # Infer the XNAT hierarchy from the target XNAT path.
+            # hierarchy = path_hierarchy(dest)
+            # # The /project/subject/experiment prefix.
+            # prefix = hierarchy[:3]
+            # # Validate that each prefix is of the correct type.
+            # if [pair[0] for pair in prefix] != prefix_types:
+            #     raise ArgumentError("Upload XNAT target must start with a"
+            #                         " /project/subject/session: %s" % dest)
+            # # Extract the prefix names.
+            # prj, sbj, sess = ((pair[1] for pair in prefix))
+            # # Get the XNAT session.
+            # sess_obj = xnat.find_one(prj, sbj, sess)
+            # if not opts.get('modality') and not xnat.exists(sess_obj):
+            #     raise SessionNotFoundError("The --modality option is required"
+            #                                " to create the XNAT session: %s %s"
+            #                                " %s" % (prj, sbj, sess))
+            # # The remaining (type, value) pairs.
+            # upload_opts = dict(hierarchy[3:])
+            # # Add in the general command options, e.g. force.
+            # upload_opts.update(opts)
+            # # Upload the files.
+            # xnat.upload(prj, sbj, sess, *sources, **upload_opts)
+
+
         else:
-            # The download source XNAT file objects.
-            src_obj_lists = [xnat.expand_path(src) for src in sources]
-            src_objs = reduce(lambda x,y: x + y, src_obj_lists)
-            # Download the files.
-            for src_obj in src_objs:
-                xnat.download_file(src_obj, dest, **opts)
+            for src in sources:
+                # Infer the XNAT hierarchy from the target XNAT path.
+                hierarchy = path_hierarchy(src)
+                # Add the hierarchy {type name: search key} items to the
+                # download options.
+                opts.update(dict(hierarchy))
+                # Download the files.
+                xnat.download(**opts)
+            
+            
+            # # The download source XNAT file objects.
+            # src_obj_lists = [xnat.find_path(src) for src in sources]
+            # src_objs = reduce(lambda x,y: x + y, src_obj_lists)
+            # # Download the files.
+            # for src_obj in src_objs:
+            #     xnat.download_file(src_obj, dest, **opts)
 
     return 0
 
