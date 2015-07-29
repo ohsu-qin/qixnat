@@ -9,7 +9,7 @@ from .helpers import (xnat_key, path_hierarchy, hierarchical_label,
                       rest_type, rest_date, pluralize_type_name)
 try:
     import pyxnat
-    from pyxnat.core.resources import File
+    from pyxnat.core.resources import (Project, File)
     from  pyxnat.core.errors import DatabaseError
 except ImportError:
     # Ignore pyxnat import failure to allow ReadTheDocs auto-builds.
@@ -198,12 +198,6 @@ class XNAT(object):
         """Drops the XNAT connection."""
         self.interface.disconnect()
         self._logger.debug("Disconnected the XNAT client.")
-
-    def exists(self, obj):
-        """
-        :return: whether the given object is an existing XNAT object
-        """
-        return obj and obj.exists()
 
     def find_path(self, path):
         """
@@ -439,6 +433,10 @@ class XNAT(object):
             (name, {attribute: value}) tuple
         :keyword analysis: the analysis name or (name, {attribute: value}) tuple
         :keyword resource: the resource name or (name, {attribute: value}) tuple
+        :keyword in_resource: the XNAT *in_resource* name or
+            (name, {attribute: value}) tuple
+        :keyword out_resource: the XNAT *out_resource* name or
+            (name, {attribute: value}) tuple
         :keyword file: the file name
         :keyword inout: the resource direction (``in`` or ``out``)
         :return: the XNAT object, if it exists, `None` otherwise
@@ -474,8 +472,8 @@ class XNAT(object):
         ...     subjects = xnat.find('QIN', 'Sarcoma*')
         ...     scan = xnat.find('QIN', 'Sarcoma003', '*', scan=1)
 
-        :param args: the :meth:`find` positional search keys
-        :param opts: the :meth:`find` keyword hierarchy options
+        :param args: the :meth:`object` positional search keys
+        :param opts: the :meth:`object` keyword hierarchy options
             search key
         :return: the XNAT objects
         """
@@ -494,10 +492,11 @@ class XNAT(object):
         # The hierarchy leading from the starting object.
         down = rest_hierarchy[qlen:]
         # Recurse on the children.
-        self._logger.debug("Expanding the hierarchy %s %s..." % (parent, down))
+        self._logger.debug("Expanding the %s descendant hierarchy %s..." %
+                           (parent, down))
         result = self._find_descendant_hierarchy(parent, down)
-        self._logger.debug("Found %d objects for the hierarchy %s %s." %
-                           (len(result), parent, down))
+        self._logger.debug("Found %d objects for the %s descendant hierarchy"
+                           " %s." % (len(result), parent, down))
 
         return result
 
@@ -513,8 +512,9 @@ class XNAT(object):
             with qixnat.connect() as xnat:
                 subject = xnat.find_one('QIN', 'Sarcoma003')
                 scan = xnat.find_one('QIN', 'Sarcoma003', 'Session01', scan=1)
-                file = xnat.find_one('QIN', 'Sarcoma003', 'Session01', scan=1,
-                                     resource='NIFTI', file='image12.nii.gz')
+                file_obj = xnat.find_one('QIN', 'Sarcoma003', 'Session01',
+                                         scan=1, resource='NIFTI',
+                                         file='image12.nii.gz')
 
         :param args: the :meth:`find` positional search key
         :param opts: the :meth:`find` keyword hierarchy options
@@ -681,13 +681,16 @@ class XNAT(object):
 
     def delete(self, *args, **opts):
         """
-        Deletes the XNAT object which match the given search criteria.
+        Deletes the XNAT objects which match the given search criteria.
         The object search is described in :meth:`find`.
+        
+        :Note: XNAT project deletion is unsupported.
         
         :Note: pyxnat file object deletion is unsupported.
 
-        :Note: XNAT delete is recursive. In particular, all files contained
-        in the deletion target are deleted. Use this method with caution. 
+        :Note: XNAT delete is recursive. In particular, all files
+            contained in the deletion target are deleted. Use this
+            method with caution. 
 
         Examples::
 
@@ -700,14 +703,18 @@ class XNAT(object):
         :param args: the :meth:`find` positional search key
         :param opts: the :meth:`find` keyword hierarchy options
             search key
-        :raise XNATError: if a file is specified
+        :raise XNATError: if a project or file object is specified
         """
         matching = self.find(*args, **opts)
+        is_project_object = lambda obj: isinstance(obj, Project)
+        if any(is_project_object(obj) for obj in matching):
+            raise XNATError("XNAT does not support project object deletion")
         is_file_object = lambda obj: isinstance(obj, File)
         if any(is_file_object(obj) for obj in matching):
             raise XNATError("XNAT does not support file object deletion")
         for obj in matching:
             obj.delete()
+            self._logger.debug("Deleted XNAT object %s." % obj)
 
     def _positional_hierarchy_arguments(self, project, subject, experiment):
         args = [project]
@@ -775,7 +782,6 @@ class XNAT(object):
             self._logger.error("XNAT object create database error - object: %s"
                                " options: %s " % (obj, create_opts))
             raise e
-
         self._logger.debug("Created the XNAT objects %s." % nonexisting)
 
     def _nonexisting_lineage(self, obj):
@@ -885,13 +891,18 @@ class XNAT(object):
         """
         # The leading hierarchy object types.
         arg_types = ['project', 'subject', 'experiment']
+        if len(args) > len(arg_types):
+            raise XNATError("Too many positional arguments - expected:"
+                            " (project, subject, experiment), found: %s" %
+                            list(args))
         # Convert the leading arguments to keyword options.
         for i, arg in enumerate(args):
-            opts[arg_types[i]] = arg
+            if arg:
+                opts[arg_types[i]] = arg
         # There must be a parent.
         if not opts.get('project'):
-            raise XNATError("The XNAT search options are missing a project:"
-                            " %s" % opts)
+            raise XNATError("The XNAT search arguments and options are"
+                            " missing a project: %s" % opts)
         # The leading hierarchy items.
         hierarchy = [(k, opts[k]) for k in arg_types if k in opts]
 
@@ -901,7 +912,7 @@ class XNAT(object):
         if len(ctr_kws) > 1:
             raise XNATError("Mutually exclusive resource container search"
                             "options: %s" % ctr_kws)
-        elif ctr_kws:
+        if ctr_kws:
             ctr_kw = ctr_kws[0]
             ctr_opt = opts[ctr_kw]
             # A container must have an experiment.
@@ -911,16 +922,35 @@ class XNAT(object):
             ctr_type = 'assessor' if ctr_kw in ASSESSOR_SYNONYMS else ctr_kw
             ctr_spec = (ctr_type, ctr_opt)
             hierarchy.append(ctr_spec)
-        
+
         # The resource option.
-        rsc_opt = opts.get('resource')
-        if rsc_opt:
+        rsc_keys = [key for key in opts if key.endswith('resource')]
+        if len(rsc_keys) > 1:
+            raise XNATErrors("The resource options are exclusive: %s" % opts)
+        if rsc_keys:
+            rsc_key = rsc_keys[0]
             parent_type = hierarchy[-1][0]
-            inout = opts.get('inout')
-            rsc_attr = self._resource_attribute(parent_type, input)
+            if parent_type in INOUT_CONTAINER_TYPES:
+                if rsc_key == 'resource':
+                    inout = opts.get('inout')
+                    if not inout:
+                        raise XNATError("The %s container inout option was not"
+                                        " found in the find options %s" %
+                                        (ctr_type, opts))
+                    if not inout in ('in', 'out'):
+                        raise XNATError("The inout option is invalid: %s" % inout)
+                    rsc_attr = "%s_resource" % inout
+                else:
+                    rsc_attr = rsc_key
+            elif rsc_key == 'resource':
+                rsc_attr = rsc_key
+            else:
+                raise XNATError("The %s option is unsupported for the resource"
+                                " container %s" % (rsc_key, parent_type))
+            rsc_opt = opts[rsc_key]
             rsc_spec = (rsc_attr, rsc_opt)
             hierarchy.append(rsc_spec)
-        
+
         # The file option.
         file_opt = opts.get('file')
         if file_opt:
@@ -931,19 +961,8 @@ class XNAT(object):
             hierarchy.append(file_spec)
 
         self._logger.debug("The XNAT hierarchy is %s." % hierarchy)
-        return hierarchy
 
-    def _resource_attribute(self, parent_type, inout):
-        if parent_type in INOUT_CONTAINER_TYPES:
-            if not inout:
-                raise XNATError("Finding a %s resource requires an inout"
-                                " option" % parent_type)
-            if not inout in ['in', 'out']:
-                raise XNATError("The %s inout option is invalid: %s" %
-                                (parent_type, inout))
-            return "%s_resource" % inout
-        else:
-            return 'resource'
+        return hierarchy
 
     def _find_descendant_hierarchy(self, parent, hierarchy):
         """

@@ -75,7 +75,10 @@ class TestFacade(object):
                          "Scan description is incorrect: %s" % actual_desc)
     
     def test_scan_resource(self):
-        """This test case also tests creation of ancestor objects."""
+        """
+        Test create and find of a scan resource. This test case also
+        verifies the content of the created ancestor objects.
+        """
         date = datetime(2014, 4, 9)
         exp_opt = (SESSION, dict(date=date))
         scan_opt = (SCAN, dict(series_description='T1'))
@@ -152,9 +155,14 @@ class TestFacade(object):
             rsc = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
                                 resource='DICOM', modality='MR')
             # Delete the resource.
-            xnat.delete(PROJECT, SUBJECT, 'Session*', scan=1)
+            xnat.delete(PROJECT, SUBJECT, 'Session*', scan=1, resource='DICOM')
             assert_false(rsc.exists(), "%s was not deleted." % rsc)
-
+            # Find again.
+            rsc = xnat.find_one(PROJECT, SUBJECT, 'Session01', scan=1,
+                       
+                                resource='DICOM', modality='MR')
+            assert_is_none(rsc, "Deleted resource was found: %s." % rsc)
+    
     def _validate_experiment_date(self, exp, date):
         actual_date_s = exp.attrs.get('date')
         actual_date = parse_rest_date(actual_date_s)
@@ -181,14 +189,12 @@ class TestFacade(object):
         find_args = [xnat._extract_search_key(arg) for arg in args]
         find_opts = {k: xnat._extract_search_key(v) for k, v in opts.iteritems()}
         obj = xnat.object(*find_args, **find_opts)
-        assert_false(xnat.exists(obj), "XNAT object inadvertently"
-                                       " created: %s" % obj)
+        assert_false(obj.exists(), "XNAT object inadvertently created: %s" % obj)
         fetched = xnat.find_one(*find_args, **find_opts)
         assert_is_none(fetched, "Found non-existing XNAT object %s:" % obj)
         fetched = xnat.find_or_create(*args, modality='MR', **opts)
         assert_is_not_none(fetched, "No create return value")
-        assert_true(xnat.exists(fetched), "XNAT object not created: %s" %
-                                      obj)
+        assert_true(fetched.exists(), "XNAT object not created: %s" % obj)
         fetched = xnat.find_one(*find_args, **find_opts)
         assert_is_not_none(fetched, "XNAT object not found: %s" % obj)
 
