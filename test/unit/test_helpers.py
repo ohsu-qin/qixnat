@@ -42,7 +42,7 @@ class TestHelpers(object):
 
     def test_path_hierarchy_with_wild_card(self):
         path = 'session/Session01/resource/*'
-        expected = [('experiment', 'Session01'), ('resources', '*')]
+        expected = [('experiment', 'Session01'), ('resource', '*')]
         actual = path_hierarchy(path)
         assert_equal(actual, expected, "The path hierarchy for path %s is"
                                        " incorrect: %s" % (path, actual))
@@ -50,22 +50,22 @@ class TestHelpers(object):
     def test_path_hierarchy_with_globs(self):
         path = '/QIN/Breast003/Session*/resources/pk*'
         expected = [('project', 'QIN'), ('subject', 'Breast003'),
-                    ('experiments', 'Session*'), ('resources', 'pk*')]
+                    ('experiment', 'Session*'), ('resource', 'pk*')]
         actual = path_hierarchy(path)
         assert_equal(actual, expected, "The path hierarchy for path %s is"
                                        " incorrect: %s" % (path, actual))
 
     def test_project_glob(self):
         path = '/QIN*/*/*/resources/pk*'
-        expected = [('projects', 'QIN*'), ('subjects', '*'),
-                    ('experiments', '*'), ('resources', 'pk*')]
+        expected = [('project', 'QIN*'), ('subject', '*'),('experiment', '*'),
+                     ('resource', 'pk*')]
         actual = path_hierarchy(path)
         assert_equal(actual, expected, "The path hierarchy for path %s is"
                                        " incorrect: %s" % (path, actual))
 
     def test_path_hierarchy_with_missing_terminal_value(self):
         path = 'session/Session01/resources'
-        expected = [('experiment', 'Session01'), ('resources', '*')]
+        expected = [('experiment', 'Session01'), ('resource', '*')]
         actual = path_hierarchy(path)
         assert_equal(actual, expected, "The path hierarchy for path %s is"
                                        " incorrect: %s" % (path, actual))
