@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.2 / 2015-07-29
+------------------
+* Allow [in|out]_resource in XNAT path.
+
 4.1.1 / 2015-07-16
 ------------------
 * Refactor find and add delete.
