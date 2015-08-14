@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.3 / 2015-08-13
+------------------
+* Make lsxnat more like ls -l.
+
 4.1.2 / 2015-07-29
 ------------------
 * Allow [in|out]_resource in XNAT path.
