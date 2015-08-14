@@ -1,14 +1,39 @@
 #!/usr/bin/env python
 """
-Lists XNAT objects.
+Lists XNAT objects. ``lsxnat`` is akin to the ``ls -d`` *nix command,
+in that it displays the objects that match the path argument rather
+than the matching arguments child content.
+
+Examples:
+
+>> lsxnat /QIN/Breast003
+/QIN/Breast003
+>> lsxnat /QIN/Breast003/*
+/QIN/Breast003/Session01
+/QIN/Breast003/Session02
+>> lsxnat /QIN/Breast003/sessions
+/QIN/Breast003/Session01
+/QIN/Breast003/Session02
+>> lsxnat /QIN/Breast003/Session01/scan/1/resources
+/QIN/Breast003/Session01/scan/1/resource/DICOM
+/QIN/Breast003/Session01/scan/1/resource/NIFTI
+>> lsxnat /QIN/Breast003/Session*/scan/1/resource/DICOM
+/QIN/Breast003/Session01/scan/1/resource/DICOM
+/QIN/Breast003/Session02/scan/1/resource/DICOM
+>> lsxnat /QIN/Breast003/Session01/scan/*/resource/NIFTI/file/volume001.*
+/QIN/Breast003/Session01/scan/1/resource/NIFTI/file/volume001.nii.gz
+/QIN/Breast003/Session01/scan/2/resource/NIFTI/file/volume001.nii.gz
 """
+
+from __future__ import print_function
 import sys
 import os
 import argparse
 import qixnat
 from qixnat import command
-from qixnat.helpers import (xnat_path, xnat_key)
+from qixnat.helpers import (xnat_name, xnat_path)
 from qixnat.facade import XNATError
+
 
 def main(argv=sys.argv):
     # Parse the command line arguments.
@@ -20,12 +45,12 @@ def main(argv=sys.argv):
 
     # Print the XNAT object names specified by the path. 
     with qixnat.connect(config) as xnat:
-        try:
-            for child in xnat.find_path(path):
-                print xnat_key(child)
-        except XNATError:
-            print ("No such XNAT object: %s" % path)
+        matches = xnat.find_path(path)
+        if not matches:
+            print("No such XNAT object: %s" % path, file=sys.stderr)
             return 1
+        for match in matches:
+            print(xnat_path(match))
     return 0
 
 
