@@ -16,8 +16,19 @@ XNAT_TYPES = set(EXPERIMENT_PATH_TYPES + CONTAINER_TYPES + RESOURCE_TYPES +
                  ['file'])
 """The standard XNAT object types."""
 
+EXPERIMENT_SYNONYM = 'session'
+"""
+``session`` is an alternate designation for the XNAT experiment type.
+"""
+
 ASSESSOR_SYNONYMS = ['analysis', 'assessment']
 """Alternative designations for the XNAT ``assessor`` container type."""
+
+TYPE_SYNONYMS = [EXPERIMENT_SYNONYM] + ASSESSOR_SYNONYMS
+"""The alternate type designators."""
+
+TYPE_DESIGNATORS = list(XNAT_TYPES) + TYPE_SYNONYMS
+"""All type designators."""
 
 CONTAINER_DESIGNATIONS = CONTAINER_TYPES + ASSESSOR_SYNONYMS
 """The :const:`CONTAINER_TYPES` and :const:`ASSESSOR_SYNONYMS`."""

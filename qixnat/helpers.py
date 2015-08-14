@@ -4,10 +4,12 @@
 """
 import os
 import re
+import itertools
 from datetime import datetime
-from qiutil.logging import logger
+from pyxnat.core.resources import Scan
 from .constants import (XNAT_TYPES, UNLABELED_TYPES, ASSESSOR_SYNONYMS,
-                        MODALITY_TYPES, DATE_FMT)
+                        EXPERIMENT_SYNONYM, EXPERIMENT_PATH_TYPES,
+                        TYPE_DESIGNATORS, MODALITY_TYPES, DATE_FMT)
 
 
 class ParseError(Exception):
@@ -16,18 +18,61 @@ class ParseError(Exception):
 
 def xnat_path(obj):
     """
-    Returns the XNAT object path consisting of the :meth:`xnat_key`
-    path components.
+    Returns the XNAT object path in the canonical form:
+    
+    /<project>[/<subject>[/<session>[/type/<name>]*]]
+    
+    e.g.::
+    
+        /QIN/Breast003/Session02/scan/1/resource/NIFTI/file/volume001.nii.gz
 
     :param obj: the XNAT object
     :return: the XNAT path
     """
-    name = xnat_key(obj)
+    name = xnat_name(obj)
+    # The lower-case type name.
+    xnat_type = obj.__class__.__name__.lower()
+    # The types leading to and including experiment are unqualified
+    # by the type in the path.
+    if xnat_type in EXPERIMENT_PATH_TYPES:
+        subpath = name
+    else:
+        subpath = "%s/%s" % (xnat_type, name)
+    parent = obj.parent()
+    # If there is a parent, then prepend the parent path to the
+    # relative sub-path. Otherwise, the path is the absolute project
+    # name.
+    if parent:
+        return "%s/%s" % (xnat_path(parent), subpath)
+    else:
+        return '/' + subpath
+
+
+def xnat_name(obj):
+    """
+    Returns the canonical XNAT object name determined as the :meth:`xnat_key`
+    with the parent key prefix removed, if necessary, e.g.::
+
+    >> xnat_key(session)
+    Breast003_Session01
+    >> xnat_name(session)
+    Session01
+
+    The scan name is an integer, the other names are strings.
+
+    :param obj: the XNAT object
+    :return: the canonical XNAT name
+    """
+    key = xnat_key(obj)
+    if isinstance(obj, Scan):
+        return int(key)
     parent = obj.parent()
     if parent:
-        return '/'.join((xnat_path(parent), name))
-    else:
-        return '/' + name
+        prefix = xnat_key(parent) + '_'
+        if key.startswith(prefix):
+            return key[len(prefix):]
+
+    return key
 
 
 def xnat_key(obj):
@@ -45,14 +90,46 @@ def xnat_key(obj):
     return obj.id() if type_name in UNLABELED_TYPES else obj.label()
 
 
-def pluralize_type_name(name):
+def xnat_children(obj):
     """
-    :param name: the XNAT type name
-    :return: the pluralized type name
-    """
-    # As it happens, the pluralization of every XNAT name is trivial.
-    return name + 's'
+    Returns the XNAT objects contained in the given parent object.
 
+    :param obj: the XNAT parent object
+    :return: the child objects
+    :rtype: list
+    """
+    # pyxnat children() is oddly the child collection attributes
+    # rather than objects.
+    child_attrs = obj.children()
+    # The children generators for each child type.
+    nested = (getattr(obj, attr)() for attr in child_attrs)
+    flattened = itertools.chain(*nested)
+
+    return list(flattened)
+
+
+def pluralize_type_designator(designator):
+    """
+    :param designator: the XNAT type name or synonym
+    :return: the pluralized type designator
+    """
+    if designator == 'analysis':
+        return 'analyses'
+    elif designator.endswith('s'):
+        # No examples of this (yet), but play it safe.
+        return designator
+    else:
+        return designator + 's'
+
+
+def is_pluralized_type_designator(designator):
+    """
+    :param designator: the XNAT type name or synonym
+    :return: whether the designator is a pluralized XNAT type
+        designator
+    """
+    return any(designator == pluralize_type_designator(xnat_type)
+               for xnat_type in TYPE_DESIGNATORS)
 
 def hierarchical_label(*names):
     """
@@ -247,7 +324,7 @@ def _standardize_attribute(name):
     """
     if name in XNAT_TYPES:
         return name
-    elif name == 'session':
+    elif name == EXPERIMENT_SYNONYM:
         return 'experiment'
     elif name == 'analyses':
         return 'assessor'

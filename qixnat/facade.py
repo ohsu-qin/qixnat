@@ -6,7 +6,7 @@ from .constants import (CONTAINER_DESIGNATIONS, CONTAINER_TYPES,
                         ASSESSOR_SYNONYMS, MODALITY_TYPES,
                         INOUT_CONTAINER_TYPES, HIERARCHICAL_LABEL_TYPES)
 from .helpers import (xnat_key, path_hierarchy, hierarchical_label,
-                      rest_type, rest_date, pluralize_type_name)
+                      rest_type, rest_date, pluralize_type_designator)
 try:
     import pyxnat
     from pyxnat.core.resources import (Project, File)
@@ -31,12 +31,19 @@ class XNAT(object):
         with qixnat.connect() as xnat:
             sbj = xnat.find('QIN_Test', 'Breast003')
 
-    This XNAT wrapper class implements methods to access XNAT objects in
-    a hierarchical name space using a labeling convention. The access
-    method parameters are XNAT hierarchy object name values. Here, the
-    *name* refers to the ending portion of the XNAT label that strips
-    out the parent label. The name parameters are used to build the
-    XNAT label, as shown in the following example:
+    This XNAT wrapper class implements methods to access XNAT objects
+    in a hierarchical name space using a labeling convention. The
+    access method parameters are XNAT hierarchy object name values.
+    Here, the *name* refers to a designator for an XNAT object that
+    is unique within the scope of the object parent. For non-scan
+    XNAT objects, the name is the ending portion of the XNAT label
+    that strips out the parent label. Since the XNAT scan label is
+    conventionally the scan number as a string, the scan name
+    converts the label to an integer, i.e. the scan name is the
+    scan number designator.
+    
+    The name parameters are used to build the XNAT label, as shown in
+    the following example:
 
         +----------------+-------------+---------------------------------+
         | Class          | Name        | Label                           |
@@ -68,8 +75,6 @@ class XNAT(object):
         integer label. By contrast, this :class:`XNAT` class allows an
         integer name and converts it to a string to perform a XNAT
         search.
-
-    The Scan Name is the integer scan number. The other names are strings.
 
     The XNAT label is set by the user and conforms to the following
     uniqueness constraints:
@@ -832,7 +837,7 @@ class XNAT(object):
             rest_name = rest_type(type_name, modality)
             # The subtype option described in the find_or_create doc.
             if type_name in MODALITY_TYPES:
-                key = pluralize_type_name(type_name)
+                key = pluralize_type_designator(type_name)
                 rest_opts[key] = rest_name
             type_opts = opts.get(type_name)
             # The REST attribute:value option described in the
@@ -980,7 +985,7 @@ class XNAT(object):
         child_hierarchy = hierarchy[1:]
         # Recurse on the matching children.
         if '*' in child_key:
-            attr = pluralize_type_name(child_type)
+            attr = pluralize_type_designator(child_type)
             children = getattr(parent, attr)()
             # The regex pattern to compare against the fetched
             # child key value.

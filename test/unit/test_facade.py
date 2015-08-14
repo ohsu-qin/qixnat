@@ -7,7 +7,7 @@ from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Resource, Assessor)
 import qixnat
 from qixnat.helpers import parse_rest_date
-from test import (PROJECT, ROOT)
+from .. import (PROJECT, ROOT)
 from ..helpers.logging import logger
 from ..helpers.name_generator import generate_unique_name
 
@@ -25,6 +25,9 @@ SESSION = generate_unique_name(__name__)
 
 SCAN = 1
 """The test scan number."""
+
+RESOURCE = 'NIFTI'
+"""The test resource name."""
 
 REGISTRATION = 'reg'
 """The test scan registration resource name."""
@@ -108,13 +111,13 @@ class TestFacade(object):
         with qixnat.connect() as xnat:
             # Make the resource.
             rsc = xnat.find_or_create(PROJECT, SUBJECT, SESSION,
-                                      scan=SCAN, resource='NIFTI',
+                                      scan=SCAN, resource=RESOURCE,
                                       modality='MR')
             # Upload the file.
             xnat.upload(rsc, FIXTURE)
             # The XNAT file object.
             obj = xnat.find_one(PROJECT, SUBJECT, SESSION, scan=SCAN,
-                           resource='NIFTI', file=fname)
+                           resource=RESOURCE, file=fname)
             assert_is_not_none(obj, "XNAT %s %s file object not found" %
                                     (rsc, fname))
             # Download the uploaded file.
@@ -133,34 +136,33 @@ class TestFacade(object):
             x11 = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
                                 resource='DICOM', modality='MR')
             xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
-                                resource='NIFTI')
+                                resource=RESOURCE)
             x12 = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=2,
-                                resource='NIFTI', modality='MR')
+                                resource=RESOURCE, modality='MR')
             x21 = xnat.find_or_create(PROJECT, SUBJECT, 'Session02', scan=1,
-                                resource='NIFTI', modality='MR')
+                                resource=RESOURCE, modality='MR')
             # Find the NIFTI resources.
             result = xnat.find(PROJECT, '*', 'Session*', scan='*',
-                               resource='NIFTI')
+                               resource=RESOURCE)
             assert_equal(len(result), 3, "Find existing result is"
                                          " incorrect: %s" % result)
-            # Find non-existing resources.
+            # Find a non-existing resource.
             result = xnat.find(PROJECT, SUBJECT, 'Session*', scan=2,
-                               resource='DICOM')
+                               resource='bogus')
             assert_equal(len(result), 0, "Find non-existing result is"
                                          " not empty: %s" % result)
-    
+
     def test_delete(self):
         with qixnat.connect() as xnat:
             # Make a resource.
             rsc = xnat.find_or_create(PROJECT, SUBJECT, 'Session01', scan=1,
-                                resource='DICOM', modality='MR')
+                                resource=RESOURCE, modality='MR')
             # Delete the resource.
-            xnat.delete(PROJECT, SUBJECT, 'Session*', scan=1, resource='DICOM')
+            xnat.delete(PROJECT, SUBJECT, 'Session*', scan=1, resource=RESOURCE)
             assert_false(rsc.exists(), "%s was not deleted." % rsc)
             # Find again.
             rsc = xnat.find_one(PROJECT, SUBJECT, 'Session01', scan=1,
-                       
-                                resource='DICOM', modality='MR')
+                                resource=RESOURCE, modality='MR')
             assert_is_none(rsc, "Deleted resource was found: %s." % rsc)
     
     def _validate_experiment_date(self, exp, date):
