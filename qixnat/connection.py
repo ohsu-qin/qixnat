@@ -40,17 +40,17 @@ def connect(config=None, **opts):
         then concurrency cache conflicts can arise because the
         pyxnat cache is non-reentrant and unsynchronized (cf.
         the :meth:`qixnat.facade.find` Note).
-
-        It is recommended, but not required, that the caller
-        not set the *cachedir* option. This practice ensures
-        cache consistency in a cluster environment.
+        
+        The caller is required to either not set the *cachedir*
+        option or set the *cachedir* to a location that is unique
+        for each execution process. This practice ensures cache
+        consistency in a cluster environment.
         
         This practice differs from the standard ``pyxnat``
         configuration file. ``pyxnat`` load of a configuration file
         without a *cachedir* option results in an error. By contrast,
         ``qixnat`` load of a configuration file without a *cachedir*
-        option results in more reliable pyxnat behavior in a cluster
-        environment.
+        option results in a new temp cache directory.
 
     Example:
 
@@ -64,26 +64,26 @@ def connect(config=None, **opts):
         initialization options
     :yield: the XNAT instance
     """
-    # The *connect_cnt* function variable holds the active
+    # The *counter* function variable holds the active
     # connection context reference count.
-    if not hasattr(connect, 'connect_cnt'):
+    if not hasattr(connect, 'counter'):
         # The connection count.
-        connect.connect_cnt = 0
+        connect.counter = 0
         # The connection cache directory.
         connect.cachedir = None
     # If there no active connections, then do a real XNAT connect.
-    if not connect.connect_cnt:
+    if not connect.counter:
         _connect(config, **opts)
     # Increment the connect reference counter.
-    connect.connect_cnt += 1
+    connect.counter += 1
     # Pass back the XNAT facade in an execution context with clean-up.
     try:
         yield connect.xnat
     finally:
         # Decrement the connection counter.
-        connect.connect_cnt -= 1
+        connect.counter -= 1
         # If there are no more active connections, then disconnect.
-        if not connect.connect_cnt:
+        if not connect.counter:
             _disconnect()
 
 def _connect(config=None, **opts):
