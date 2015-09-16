@@ -444,8 +444,7 @@ class XNAT(object):
             (name, {attribute: value}) tuple
         :keyword file: the file name
         :keyword inout: the resource direction (``in`` or ``out``)
-        :return: the XNAT object, if it exists, `None` otherwise
-        :raise XNATError: if the project does not exist
+        :return: the XNAT object, which may not exist
         """
         args = self._positional_hierarchy_arguments(project, subject, experiment)
         # The object [(type name, search key), ...] hierarchy.
@@ -524,6 +523,7 @@ class XNAT(object):
         :param args: the :meth:`find` positional search key
         :param opts: the :meth:`find` keyword hierarchy options
             search key
+        :return: the matching XNAT object, or None if not found
         """
         create = opts.pop('create', None)
         modality = opts.pop('modality', None)
@@ -727,8 +727,8 @@ class XNAT(object):
             args.append(subject)
         if experiment:
             if not subject:
-                raise XNATError("The find specifies an experiment but not a"
-                                "subject")
+                raise XNATError('The find specifies an experiment but not a'
+                                'subject')
             args.append(experiment)
         
         return args
@@ -1055,7 +1055,7 @@ class XNAT(object):
         query = '/' + '/'.join(level(spec) for spec in hierarchy)
         # Find the object.
         self._logger.debug("Submitting XNAT select %s..." % query)
-        
+
         return self.interface.select(query)
 
     def _upload_file(self, resource, in_file, **opts):
