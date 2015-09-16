@@ -64,8 +64,8 @@ def connect(config=None, **opts):
         initialization options
     :yield: the XNAT instance
     """
-    # The *counter* function variable holds the active
-    # connection context reference count.
+    # The *counter* function variable holds the active connection
+    # context reference count.
     if not hasattr(connect, 'counter'):
         # The connection count.
         connect.counter = 0
