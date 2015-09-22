@@ -72,7 +72,7 @@ the following installation steps must be followed to ensure a correct build:
 
 8. Install the ``qixnat`` dependencies hosted by Anaconda::
 
-       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install -y
+       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install --yes
 
    The above command installs ``qixnat`` dependencies in the ``requirements.txt``
    file in succession, one at a time. Ignore ``No packages found`` messages for
@@ -80,13 +80,13 @@ the following installation steps must be followed to ensure a correct build:
 
 9. Install the ``qixnat`` dependencies not hosted by Anaconda::
 
-       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 pip install
+       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 pip install -y
 
 10. Install the ``qixnat`` package::
 
        pip install qixnat
   
-  The preceding dependency installation steps must be performed prior to installing qixnat itself. 
+    The preceding dependency installation steps must be performed prior to installing qixnat itself. 
 
 
 *****
