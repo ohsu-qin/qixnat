@@ -52,20 +52,25 @@ the following installation steps must be followed to ensure a correct build:
 
        conda create --name qin pip lxml
 
-5. Prepend Anaconda and your virtual environment to ``PATH`` in your shell
+5. On Mac only, reinstall ``lxml`` to work around a `lxml install issue`_::
+
+       conda install -f lxml
+
+6. As a convenience, you can initialize this environment at login by prepending
+   Anaconda and your virtual environment to ``PATH`` in your shell
    login script. Open an editor on ``$HOME/.bashrc`` or ``$HOME/.bash_profile``
    and add the following lines::
 
       # Prepend the locally installed applications.
       export PATH=$HOME/anaconda/bin:$PATH
-      # Prepend the qin virtual environment.
-      source activate qin  
+      # Prepend the virtual environment.
+      source activate qin
 
-6. Refresh your environment by opening a new console or running the following:
+7. Refresh your environment by opening a new console or running the following:
       
       . $HOME/.bash_profile
 
-7. Install the ``qixnat`` dependencies hosted by Anaconda::
+8. Install the ``qixnat`` dependencies hosted by Anaconda::
 
        wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install -y
 
@@ -73,11 +78,11 @@ the following installation steps must be followed to ensure a correct build:
    file in succession, one at a time. Ignore ``No packages found`` messages for
    non-Anaconda packages. These packages will be installed in the next step.
 
-8. Install the ``qixnat`` dependencies not hosted by Anaconda::
+9. Install the ``qixnat`` dependencies not hosted by Anaconda::
 
        wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 pip install
 
-9. Install the ``qixnat`` package::
+10. Install the ``qixnat`` package::
 
        pip install qixnat
   
@@ -125,6 +130,8 @@ to GitHub. Documentation can be generated locally as follows:
 .. _Knight Cancer Institute: http://www.ohsu.edu/xd/health/services/cancer
 
 .. _license: https://github.com/ohsu-qin/qixnat/blob/master/LICENSE.txt
+
+.. _lxml install issue: http://stackoverflow.com/questions/23172384/lxml-runtime-error-reason-incompatible-library-version-etree-so-requires-vers
 
 .. _nose: https://nose.readthedocs.org/en/latest/
 
