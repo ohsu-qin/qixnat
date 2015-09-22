@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.4 / 2015-09-22
+------------------
+* Upgrade dependency versions.
+
 4.1.3 / 2015-08-13
 ------------------
 * Make lsxnat more like ls -l.
