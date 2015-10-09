@@ -42,9 +42,11 @@ the following installation steps must be followed to ensure a correct build:
 
 2. Anaconda_ is recommended for ensuring package and library consistency.
   Install Anaconda in ``$HOME/anaconda`` on your workstation according to
-   the `Anaconda Installation Instructions`_.
+   the `Anaconda Installation Instructions`_. Preferably, install the
+   `Anaconda Accelerate`_ add-on as well. Note that a
+   `Anaconda Accelerate Academic User License`_ is available.
 
-3. Add ``$HOME/anaconda/bin`` to your PATH::
+3. Add ``$HOME/anaconda/bin`` to your PATH, if necessary::
 
        export PATH=$HOME/anaconda/bin:$PATH
 
@@ -124,6 +126,10 @@ to GitHub. Documentation can be generated locally as follows:
 .. Targets:
 
 .. _Anaconda: http://docs.continuum.io/anaconda/
+
+.. _Anaconda Accelerate: http://docs.continuum.io/accelerate/index
+
+.. _Anaconda Accelerate Academic User License: https://store.continuum.io/cshop/academicanaconda
 
 .. _Anaconda Installation Instructions: http://docs.continuum.io/anaconda/install.html
 
