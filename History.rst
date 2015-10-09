@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.5 / 2015-10-09
+------------------
+* Remove qiutil dependency version.
+
 4.1.4 / 2015-09-22
 ------------------
 * Upgrade dependency versions.
