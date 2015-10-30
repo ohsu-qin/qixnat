@@ -5,6 +5,7 @@ from nose.tools import (assert_equal, assert_true, assert_false,
                         assert_is_none, assert_is_not_none)
 from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Resource, Assessor)
+from qiutil.file import splitexts
 import qixnat
 from qixnat.helpers import parse_rest_date
 from .. import (PROJECT, ROOT)
@@ -129,7 +130,11 @@ class TestFacade(object):
         location = files[0]
         assert_true(os.path.exists(location), "File not downloaded: %s" %
                                               location)
-    
+        dl_dir, dl_fname = os.path.split(location)
+        assert_equal(RESULTS, dl_dir, "File parent directory is"
+                                      " incorrect: %s" % dl_dir)
+        assert_equal(dl_fname, fname, "File name is incorrect: %s" % dl_fname)
+
     def test_find(self):
         with qixnat.connect() as xnat:
             # Make some experiments and resources.
