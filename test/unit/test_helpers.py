@@ -168,7 +168,7 @@ class TestHelpers(object):
                          "The XNAT file path is incorrect: %s" % xnat_path(file))
             # Test xnat_children.
             # Note: project children is not tested, since there might be other 
-            #subjects in the QIN_Test XNAT project.
+            # subjects in the QIN_Test XNAT project.
             #
             # Note: Compare the XNAT object ids rather than the object directly,
             # due to the following pyxnat bug:
