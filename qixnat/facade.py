@@ -2,6 +2,7 @@ import os
 import re
 from qiutil.logging import logger
 from qiutil.collections import (concat, is_nonstring_iterable)
+from qiutil.file import splitexts
 from .constants import (CONTAINER_DESIGNATIONS, CONTAINER_TYPES,
                         ASSESSOR_SYNONYMS, MODALITY_TYPES,
                         INOUT_CONTAINER_TYPES, HIERARCHICAL_LABEL_TYPES)
@@ -146,7 +147,8 @@ class XNAT(object):
     * The Resource is an opaque XNAT-generated string value consisting
       of digits.
 
-    Each opaque XNAT-generated identifier is unique within the database.
+    The Project and opaque XNAT-generated identifiers are unique within
+    the database. The Scan and File id is unique within its parent.
 
     The following table shows example XNAT ids and labels:
 
@@ -324,7 +326,7 @@ class XNAT(object):
                            (fname, dest))
         # pyxnat File.get(location) uses unreliable cache trickery to copy
         # the file to the location. If the location is transitory, e.g. a
-        # temporary directory in a pipeline, then subsequent File.get()
+        # temporary directory on a cluster node, then subsequent File.get()
         # calls will raise an IOError. Work around this pyxnat defect by
         # calling pyxnat File.get_copy(location), which inefficiently but
         # safely copies the file to both the pyxnat cache and to the
@@ -359,6 +361,9 @@ class XNAT(object):
         :param in_files: the input files to upload
         :param opts: at most one of the following mutually exclusive
             keyword options:
+        :keyword name: the XNAT file object name
+            (default is the input file base name without directory
+            or extensions)
         :keyword skip_existing: flag indicating whether to forego
             overwriting an existing file (default False)
         :keyword force: flag indicating whether to replace an existing
@@ -1067,6 +1072,8 @@ class XNAT(object):
         :param in_file: the input file path
         :param opts: the ``pyxnat.core.resources.File.put`` options,
             as well as the following upload options:
+        :keyword name: the XNAT file object name
+            (default is the input file name without directory)
         :keyword skip_existing: forego the upload if the target XNAT
              file already exists (default False)
         :keyword force: replace an existing XNAT file (default False)
@@ -1077,21 +1084,26 @@ class XNAT(object):
              the *skip_existing* nor the *force* option is set
         """
         # The XNAT file name.
-        _, fname = os.path.split(in_file)
+        fname = opts.pop('name', None)
+        if not fname:
+            _, fname = os.path.split(in_file)
         self._logger.debug("Uploading the XNAT file %s from %s..." %
                            (fname, in_file))
         # The XNAT file wrapper.
         file_obj = resource.file(fname)
         # The resource parent container.
         rsc_ctr = resource.parent()
+
         # Check for an existing file.
+        skip = opts.pop('skip_existing', False)
+        force = opts.pop('force', False)
         if file_obj and file_obj.exists():
-            if opts.get('skip_existing'):
-                if opts.get('force'):
+            if skip:
+                if force:
                     raise XNATError("The XNAT upload option --skip_existing is"
                                     " incompatible with the --force option")
                 return fname
-            elif opts.get('force'):
+            elif force:
                 # Delete the existing file before upload.
                 file_obj.delete()
                 # XNAT 1.6 pyxnat ignores file delete.
