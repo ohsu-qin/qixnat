@@ -1,13 +1,17 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.7 / 2015-11-05
+------------------
+* Remove qiutil dependency version.
+
 4.1.6 / 2015-10-29
 ------------------
 * Add upload name option.
 
 4.1.5 / 2015-10-09
 ------------------
-* Remove qiutil dependency version.
+* Update documentation.
 
 4.1.4 / 2015-09-22
 ------------------
