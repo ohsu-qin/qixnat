@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.1.8 / 2015-11-12
+------------------
+* Fix the cpxnat download target directory.
+
 4.1.7 / 2015-11-05
 ------------------
 * Remove qiutil dependency version.
