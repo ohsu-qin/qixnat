@@ -41,7 +41,7 @@ the following installation steps must be followed to ensure a correct build:
        sudo yum install libxslt-dev
 
 2. Anaconda_ is recommended for ensuring package and library consistency.
-  Install Anaconda in ``$HOME/anaconda`` on your workstation according to
+   Install Anaconda in ``$HOME/anaconda`` on your workstation according to
    the `Anaconda Installation Instructions`_. Preferably, install the
    `Anaconda Accelerate`_ add-on as well. Note that a
    `Anaconda Accelerate Academic User License`_ is available.
@@ -74,7 +74,9 @@ the following installation steps must be followed to ensure a correct build:
 
 8. Install the ``qixnat`` dependencies hosted by Anaconda::
 
-       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 conda install --yes
+       wget -q --no-check-certificate -O \
+           - https://www.github.com/ohsu-qin/qixnat/raw/master/requirements.txt \
+           | xargs -n 1 conda install --yes
 
    The above command installs ``qixnat`` dependencies in the ``requirements.txt``
    file in succession, one at a time. Ignore ``No packages found`` messages for
@@ -82,13 +84,16 @@ the following installation steps must be followed to ensure a correct build:
 
 9. Install the ``qixnat`` dependencies not hosted by Anaconda::
 
-       wget -O - https://raw.githubusercontent.com/ohsu-qin/qixnat/master/requirements.txt | xargs -n 1 pip install -y
+       wget -q -O - wget --no-check-certificate -O \
+          - https://www.github.com/ohsu-qin/qixnat/raw/master/requirements.txt \
+          | xargs -n 1 pip install
 
 10. Install the ``qixnat`` package::
 
        pip install qixnat
   
-    The preceding dependency installation steps must be performed prior to installing qixnat itself. 
+    The preceding dependency installation steps must be performed prior to
+    installing qixnat itself.
 
 
 *****
