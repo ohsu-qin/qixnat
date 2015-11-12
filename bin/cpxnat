@@ -90,7 +90,7 @@ def main(argv=sys.argv):
                 # download options.
                 opts.update(dict(hierarchy))
                 # Download the files.
-                xnat.download(**opts)
+                xnat.download(dest=dest, **opts)
 
     return 0
 
