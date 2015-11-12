@@ -263,19 +263,26 @@ class XNAT(object):
             opts['file'] = '*'
         # The file objects.
         files = self.find(*args, **opts)
-        # The download location.
-        dest = opts.pop('dest', None) or os.getcwd()
-
-        # If there are files to download, then ensure that the download
-        # directory exists.
-        if files:
-            self._logger.debug("Downloading %d %s %s files to %s..." %
-                               (len(files), args, opts, dest))
-            if not os.path.exists(dest):
-                os.makedirs(dest)
-        else:
+        if not files:
             self._logger.debug("The query criterion does not contain any"
                                " files: %s %s" % (args, opts))
+            return []
+
+        # The download location.
+        if 'dest' in opts:
+            dest = opts.pop('dest')
+            if os.path.exists(dest):
+                # The target location must be a directory.
+                if not os.path.isdir(dest):
+                    raise XNATError("The download target is not a directory:"
+                                    " %s" % dest)
+            else:
+                # Make the download directory.
+                os.makedirs(dest)
+        else:
+            dest = os.getcwd()
+        self._logger.debug("Downloading %d %s %s files to %s..." %
+                           (len(files), args, opts, dest))
 
         # Download the files.
         return [self._download_file(file_obj, dest, **opts)
