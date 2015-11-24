@@ -26,9 +26,7 @@ def requires():
     @return: the installable ``requirements.txt`` package specifications
     """
     with open('requirements.txt') as f:
-        lines = f.read().splitlines()
-        include = lambda line: not any((line.startswith(lib) for lib in PYXNAT_INSTALLS))
-        return [line for line in lines if include(line)]
+        return f.read().splitlines()
 
 
 def readme():

@@ -50,50 +50,38 @@ the following installation steps must be followed to ensure a correct build:
 
        export PATH=$HOME/anaconda/bin:$PATH
 
-4. Make an Anaconda virtual environment initialized with pip and lxml, e.g.::
+4. Make an Anaconda virtual environment initialized with ``pip``, e.g.::
 
-       conda create --name qin pip lxml
+       conda create --name qin pip
 
-5. On Mac only, reinstall ``lxml`` to work around a `lxml install issue`_::
+5. Activate the Anaconda environment, e.g.::
 
-       conda install -f lxml
+       source activate qin
 
-6. As a convenience, you can initialize this environment at login by prepending
+   As a convenience, you can initialize this environment at login by prepending
    Anaconda and your virtual environment to ``PATH`` in your shell
    login script. Open an editor on ``$HOME/.bashrc`` or ``$HOME/.bash_profile``
    and add the following lines::
 
-      # Prepend the locally installed applications.
-      export PATH=$HOME/anaconda/bin:$PATH
-      # Prepend the virtual environment.
-      source activate qin
+       # Prepend the Anaconda base applications.
+       export PATH=$HOME/anaconda/bin:$PATH
+       # Prepend the virtual environment.
+       source activate qin
 
-7. Refresh your environment by opening a new console or running the following:
-      
-      . $HOME/.bash_profile
-
-8. Install the ``qixnat`` dependencies hosted by Anaconda::
+6. Install the ``qixnat`` dependencies hosted by Anaconda::
 
        wget -q --no-check-certificate -O \
-           - https://www.github.com/ohsu-qin/qixnat/raw/master/requirements.txt \
-           | xargs -n 1 conda install --yes
+         - https://www.github.com/ohsu-qin/qixnat/raw/master/requirements_conda.txt \
+         | xargs conda install --yes
 
-   The above command installs ``qixnat`` dependencies in the ``requirements.txt``
-   file in succession, one at a time. Ignore ``No packages found`` messages for
-   non-Anaconda packages. These packages will be installed in the next step.
+7. On Mac only, reinstall the lxml package using the ``-f`` force option to
+   work around a `lxml install issue`_::
 
-9. Install the ``qixnat`` dependencies not hosted by Anaconda::
+       conda install -f lxml
 
-       wget -q -O - wget --no-check-certificate -O \
-          - https://www.github.com/ohsu-qin/qixnat/raw/master/requirements.txt \
-          | xargs -n 1 pip install
-
-10. Install the ``qixnat`` package::
+8. Install the ``qixnat`` package::
 
        pip install qixnat
-  
-    The preceding dependency installation steps must be performed prior to
-    installing qixnat itself.
 
 
 *****
