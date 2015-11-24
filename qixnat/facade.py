@@ -378,6 +378,8 @@ class XNAT(object):
         :return: the new XNAT file names
         """
         # Upload the files.
+        if not in_files:
+            raise XNATError("Missing the file(s) to upload")
         self._logger.debug("Uploading %d files to %s..." %
                            (len(in_files), resource))
         xnat_files = [self._upload_file(resource, location, **opts)
@@ -1085,11 +1087,15 @@ class XNAT(object):
              file already exists (default False)
         :keyword force: replace an existing XNAT file (default False)
         :return: the XNAT file name
+        :raise XNATError: if the input file does not exist
         :raise XNATError: if both the *skip_existing* *force* options
             are set
         :raise XNATError: if the XNAT file already exists and neither
              the *skip_existing* nor the *force* option is set
         """
+        # The input file must exist.
+        if not os.path.exists(in_file):
+            raise XNATError("Input file does not exist: %s" % in_file)
         # The XNAT file name.
         fname = opts.pop('name', None)
         if not fname:
@@ -1127,7 +1133,16 @@ class XNAT(object):
                            " resource..." % (fname, rsc_ctr_type,
                                              rsc_ctr.label(),
                                              resource.label()))
-        file_obj.put(in_file, **opts)
+        try:
+            file_obj.put(in_file, **opts)
+        except pyxnat.core.errors.DatabaseError:
+            # One of the obscure XNAT errors occurs if uploading an empty file.
+            # Print a useful error message in this case.
+            if not os.stat(in_file).st_size:
+                raise XNATError("XNAT does not support upload of the empty"
+                                " file %s" % in_file)
+            
+            
         self._logger.debug("Uploaded the XNAT file %s." % fname)
 
         return fname

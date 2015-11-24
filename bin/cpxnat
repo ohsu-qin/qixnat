@@ -28,6 +28,10 @@ def main(argv=sys.argv):
     # Determine whether the copy is an upload or download.
     xnat_prefix = 'xnat:'
     prefixed = [path.startswith(xnat_prefix) for path in paths]
+    # There must be at least one XNAT source or target.
+    if not any(prefixed):
+        raise ArgumentError("There must be at least one XNAT download"
+                            " source or target.")
     if all(prefixed) or not prefixed[-1]:
         direction = 'down'
     else:
@@ -46,6 +50,8 @@ def main(argv=sys.argv):
         # The last path argument is the XNAT destination.
         # The remaining path arguments are the file sources. 
         sources = paths[:-1]
+        # Validate that the sources exist.
+        
         # The target XNAT path is the last path argument, with the
         # leading xnat: prefix removed and the trailing slash removed,
         # if any.

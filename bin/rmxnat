@@ -6,9 +6,10 @@ import sys
 import os
 import re
 import argparse
+from qiutil.collections import concat
 import qixnat
 from qixnat import command
-
+from qixnat.facade import XNATError
 
 class UnsupportedError(Exception):
     pass
@@ -25,17 +26,21 @@ def main(argv=sys.argv):
     # Validate that file objects are not specified, since
     # pyxnat file object delete is a no-op.
     for path in paths:
-        if re.search('/files?(/\w+)?$', path):
+        if re.search('/files?(/[*\w]+)?$', path):
             raise UnsupportedError("XNAT does not support file object"
                                    " deletion: %s" % path)
     
     # Delete each specified XNAT object.
     with qixnat.connect(config) as xnat:
-        obj_lists = [xnat.find_path(path) for path in paths]
-        objs = reduce(lambda x,y: x + y, obj_lists)
+        path_obj_dict = {path: xnat.find_path(path) for path in paths}
+        empty = next((path for path, objs in path_obj_dict.iteritems()
+                     if not objs), None)
+        if empty:
+            raise XNATError("XNAT object not found: %s" % empty)
+        objs = concat(*path_obj_dict.values())
         for obj in objs:
-            obj.delete()    
-    
+            obj.delete()
+
     return 0
 
 
