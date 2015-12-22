@@ -307,7 +307,7 @@ class XNAT(object):
         # object label, which must exist.
         fname = file_obj.label()
         if not fname:
-            raise XNATError("XNAT file object does not have a label: %s" %
+            raise XNATError("The XNAT file object does not have a label: %s" %
                             file_obj)
 
         # The file location.
