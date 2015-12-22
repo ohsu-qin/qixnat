@@ -1,4 +1,4 @@
-httplib2==0.9
+httplib2
 lxml
-pyxnat==1.0.0.0
+pyxnat
 qiutil
