@@ -58,15 +58,20 @@ the following installation steps must be followed to ensure a correct build:
 
        source activate qin
 
-   As a convenience, you can initialize this environment at login by prepending
-   Anaconda and your virtual environment to ``PATH`` in your shell
-   login script. Open an editor on ``$HOME/.bashrc`` or ``$HOME/.bash_profile``
-   and add the following lines::
+   As a convenience, you can initialize this environment at login by 
+   prepending Anaconda and your virtual environment to ``PATH`` in your
+   shell login script. E.g., for Linux or Mac OS X, open an editor on
+   ``$HOME/.bashrc`` or ``$HOME/.bash_profile`` and add the following
+   lines::
 
        # Prepend the Anaconda base applications.
        export PATH=$HOME/anaconda/bin:$PATH
        # Prepend the virtual environment.
        source activate qin
+
+  and refresh your environment::
+
+       . $HOME/.bash_profile
 
 6. Install the ``qixnat`` dependencies hosted by Anaconda::
 
@@ -100,16 +105,9 @@ The primary read API interface of interest is the `XNAT facade`_ class.
 Development
 ***********
 
-Testing is performed with the nose_ package, which must be installed separately.
 
-Documentation is built automatically by ReadTheDocs_ when the project is pushed
-to GitHub. Documentation can be generated locally as follows:
-
-* Install Sphinx_, if necessary.
-
-* Run the following in the ``doc`` subdirectory::
-
-    make html
+See the `qipipe Development Guide`_ for project download,
+testing and documentation.
 
 ---------
 
@@ -141,6 +139,8 @@ to GitHub. Documentation can be generated locally as follows:
 .. _pyxnat: https://pythonhosted.org/pyxnat/
 
 .. _pyxnat installation guide: https://pythonhosted.org/pyxnat/installing.html 
+
+.. _qipipe Development Guide: http://qipipe.readthedocs.org/en/latest/#development
 
 .. _ReadTheDocs: https://www.readthedocs.org
 
