@@ -248,7 +248,7 @@ class XNAT(object):
         :param project: the XNAT project id
         :param subject: the XNAT subject name
         :param experiment: the XNAT experiment name
-        :param opts: the :meth:`find` hierarchy and :meth:`_download_file`
+        :param opts: the :meth:`find` hierarchy and :meth:`download_file`
             options, as well the following option:
         :keyword dest: the optional download location
             (default current directory)
@@ -285,10 +285,10 @@ class XNAT(object):
                            (len(files), args, opts, dest))
 
         # Download the files.
-        return [self._download_file(file_obj, dest, **opts)
+        return [self.download_file(file_obj, dest, **opts)
                 for file_obj in files]
 
-    def _download_file(self, file_obj, dest, **opts):
+    def download_file(self, file_obj, dest, **opts):
         """
         Downloads the given XNAT file to the target directory.
 
@@ -366,8 +366,7 @@ class XNAT(object):
 
         :param resource: the existing XNAT resource object
         :param in_files: the input files to upload
-        :param opts: at most one of the following mutually exclusive
-            keyword options:
+        :param opts: the following  keyword options:
         :keyword name: the XNAT file object name
             (default is the input file base name without directory
             or extensions)
@@ -376,6 +375,12 @@ class XNAT(object):
         :keyword force: flag indicating whether to replace an existing
             file (default False)
         :return: the new XNAT file names
+        :raise XNATError: if there are no input files
+        :raise XNATError: if the input file does not exist
+        :raise XNATError: if both the *skip_existing* *force* options
+            are set
+        :raise XNATError: if the XNAT file already exists and neither
+             the *skip_existing* nor the *force* option is set
         """
         # Upload the files.
         if not in_files:
