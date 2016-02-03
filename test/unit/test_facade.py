@@ -7,7 +7,7 @@ from pyxnat.core.resources import (Experiment, Scan, Reconstruction,
                                    Resource, Assessor)
 from qiutil.file import splitexts
 import qixnat
-from qixnat.helpers import parse_rest_date
+from qixnat.helpers import parse_xnat_date
 from .. import (PROJECT, ROOT)
 from ..helpers.logging import logger
 from ..helpers.name_generator import generate_unique_name
@@ -172,7 +172,7 @@ class TestFacade(object):
     
     def _validate_experiment_date(self, exp, date):
         actual_date_s = exp.attrs.get('date')
-        actual_date = parse_rest_date(actual_date_s)
+        actual_date = parse_xnat_date(actual_date_s)
         assert_is_not_none(actual_date, "Session date is not set")
         assert_equal(actual_date, date, "Session date is incorrect: %s" %
                                         actual_date)

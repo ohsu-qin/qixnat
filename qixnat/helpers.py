@@ -23,9 +23,9 @@ def xnat_path(obj):
     /<project>[/<subject>[/<session>[/type/<name>]*]]
     
     e.g.::
-    
+        
         /QIN/Breast003/Session02/scan/1/resource/NIFTI/file/volume001.nii.gz
-
+    
     :param obj: the XNAT object
     :return: the XNAT path
     """
@@ -52,14 +52,14 @@ def xnat_name(obj):
     """
     Returns the canonical XNAT object name determined as the :meth:`xnat_key`
     with the parent key prefix removed, if necessary, e.g.::
-
+    
     >> xnat_key(session)
     Breast003_Session01
     >> xnat_name(session)
     Session01
-
+    
     The scan name is an integer, the other names are strings.
-
+    
     :param obj: the XNAT object
     :return: the canonical XNAT name
     """
@@ -71,7 +71,7 @@ def xnat_name(obj):
         prefix = xnat_key(parent) + '_'
         if key.startswith(prefix):
             return key[len(prefix):]
-
+    
     return key
 
 
@@ -81,19 +81,19 @@ def xnat_key(obj):
     determined as follows:
     * If the object is a Reconstruction, then the XNAT id
     * Otherwise, the XNAT label
-
+    
     :param obj: the XNAT object
     :return: the XNAT label or id
     """
     type_name = obj.__class__.__name__.lower()
-
+    
     return obj.id() if type_name in UNLABELED_TYPES else obj.label()
 
 
 def xnat_children(obj):
     """
     Returns the XNAT objects contained in the given parent object.
-
+    
     :param obj: the XNAT parent object
     :return: the child objects
     :rtype: list
@@ -104,7 +104,7 @@ def xnat_children(obj):
     # The children generators for each child type.
     nested = (getattr(obj, attr)() for attr in child_attrs)
     flattened = itertools.chain(*nested)
-
+    
     return list(flattened)
 
 
@@ -131,13 +131,14 @@ def is_pluralized_type_designator(designator):
     return any(designator == pluralize_type_designator(xnat_type)
                for xnat_type in TYPE_DESIGNATORS)
 
+
 def hierarchical_label(*names):
     """
     Returns the XNAT label for the given hierarchical name, qualified
     by a prefix if necessary.
-
+    
     Example:
-
+    
     >>> from qixnat.helpers import hierarchical_label
     >>> hierarchical_label('Breast003', 'Session01')
     'Breast003_Session01'
@@ -145,7 +146,7 @@ def hierarchical_label(*names):
     'Breast003_Session01'
     >>> hierarchical_label(3)   # for scan number 3
     3
-
+    
     :param names: the object names
     :return: the corresponding XNAT label
     """
@@ -167,11 +168,11 @@ def hierarchical_label(*names):
 def rest_type(type_name, modality=None):
     """
     Qualifies the given type name with the modality, e.g.:
-
+    
     >>> from qixnat.helpers import rest_type
     >>> rest_type('experiment', 'MR')
     'xnat:mrSessionData'
-
+    
     :param type_name: the XNAT type name
     :param modality: the case-insensitive modality, e.g. ``MR`` or ``CT``
     :return: the full XNAT subtype designation
@@ -201,8 +202,12 @@ def rest_date(value):
     return value.strftime(DATE_FMT) if value else None
 
 
-def parse_rest_date(value):
+def parse_xnat_date(value):
     """
+    The XNAT REST client unfortunately returns date fields as a string.
+     experiment must have a date. This method converts the string
+     input to a datetime.
+
     :param value: the input string in :const:`qixnat.constants.DATE_FMT`
         format or None
     :return: None, if the input is None, otherwise the input parsed
@@ -216,7 +221,7 @@ def path_hierarchy(path):
     """
     Transforms the given XNAT path into a list of *(type, value)*
     tuples.
-
+    
     The *path* string argument must consist of a sequence of
     slash-delimited XNAT object specifications, where each specification
     is either a singular XNAT type and value, e.g. ``subject/Breast003``,
@@ -227,21 +232,21 @@ def path_hierarchy(path):
     If the path starts with a forward slash, then the first three
     components can elide the XNAT type. Thus, the following are
     equivalent::
-
+          
           path_hierarchy('/project/QIN/subject/Breast003/experiment/Session02')
           path_hierarchy('/QIN/Breast003/Session02')
-
+    
     The following XNAT object type synonyms are allowed:
     * ``session`` => ``experiment``
     * ``analysis`` or ``assessment`` => ``assessor``
     Pluralized type synonyms are standardized according to the singular
     form, e.g. ``analyses`` => ``assessors``.
-
+    
     The path hierarchy result is a list of *(type, value)* tuples. A
     pluralization value is a wild card.
-
+    
     Examples:
-
+    
     >>> from qixnat.helpers import path_hierarchy
     >>> path_hierarchy('/QIN/Breast003/Session03/resource/reg_Qzu7R/files')
     [('project', 'QIN'), ('subject', 'Breast*'), ('project', 'QIN'),
@@ -250,7 +255,7 @@ def path_hierarchy(path):
     >>> path_hierarchy('/QIN/Breast*/*/resources')
     [('project', 'QIN'), ('subjects, 'Breast*'), ('experiments, '*'),
      ('resource', '*')]
-
+    
     :param path: the XNAT object path string or list
     :return: the path hierarchy list
     :rtype: list
@@ -269,7 +274,7 @@ def path_hierarchy(path):
         raise ValueError("The path argument is empty.")
     # The path items list.
     items = relpath.split('/')
-
+    
     # If the path starts with a '/', then the first three items are
     # /project/subject/experiment, and can elide the object type.
     if path.startswith('/'):
@@ -302,7 +307,7 @@ def path_hierarchy(path):
     # A terminal type not followed by a value has a '*' value.
     if len(items) % 2:
         items.append('*')
-
+    
     # Partition the items into (type, value) pairs.
     return [(_standardize_attribute(items[i]), items[i+1])
             for i in range(0, len(items), 2)]
@@ -316,7 +321,7 @@ def _standardize_attribute(name):
     * ``analysis`` or ``assessment`` => ``assessor``
     * pluralizations => the singular standardization, e.g.
       ``analyses`` => ``assessor``
-
+    
     :param name: the attribute name
     :return: the standardized XNAT attribute
     :raise ParseError: if the name is not recognized as an attribute
