@@ -368,8 +368,7 @@ class XNAT(object):
         :param in_files: the input files to upload
         :param opts: the following  keyword options:
         :keyword name: the XNAT file object name
-            (default is the input file base name without directory
-            or extensions)
+            (default is the input file base name)
         :keyword skip_existing: flag indicating whether to forego
             overwriting an existing file (default False)
         :keyword force: flag indicating whether to replace an existing
@@ -1087,7 +1086,7 @@ class XNAT(object):
         :param opts: the ``pyxnat.core.resources.File.put`` options,
             as well as the following upload options:
         :keyword name: the XNAT file object name
-            (default is the input file name without directory)
+            (default is the input file base name)
         :keyword skip_existing: forego the upload if the target XNAT
              file already exists (default False)
         :keyword force: replace an existing XNAT file (default False)
