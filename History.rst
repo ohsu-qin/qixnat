@@ -1,6 +1,10 @@
 This history lists major release themes. See the GitHub commits
 for change details.
 
+4.2.1 / 2016-02-03
+------------------
+* Rename parse_rest_date to parse_xnat_date.
+
 4.1.9 / 2015-11-23
 ------------------
 * Check for non-existing up/download files and objects.
